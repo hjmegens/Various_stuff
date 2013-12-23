@@ -1,0 +1,5 @@
+#!/bin/bash
+#$ -cwd
+#$ -S /bin/sh
+#$ -l h_vmem=5G
+gunzip -c snpdif_pigsvswbeur_1.txt.sorted2.gz | grep -v -P "^num " | perl extract_ancder-bins_allchroms_fst_sliding.pl -b 20 >pigsvswbeur_sliding.txt

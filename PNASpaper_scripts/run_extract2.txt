@@ -1,0 +1,5 @@
+#!/bin/bash
+#$ -cwd
+#$ -S /bin/sh
+#$ -l h_vmem=5G
+perl extract_regions.pl -b 100000 -f extreme_exonic_snps_wbvspigs_with_gene_names2.csv -s pigsvswb_sliding_plushetgr1.tx >output.extract100k.txt

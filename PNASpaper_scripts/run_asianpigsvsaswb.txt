@@ -1,0 +1,5 @@
+#!/bin/bash
+#$ -cwd
+#$ -S /bin/sh
+#$ -l h_vmem=5G
+perl findsnpdif_fst.pl -f /srv/mds01/shared/Sus/vars_hjm_newbuild10_2/matrix/allvars55_flt.txt -1 "JQ01U02_Jiangquhai MS20U10_Meishan MS20U11_Meishan MS21M07_Meishan MS21M14_Meishan XI01U03 XI01U04_Xiang" -2 "WB29U04_SChina WB29U12_SChina WB30U01_NChina WB30U08_NChina"  -3 "INDO26_Sbarbatus SCEB01F01_Scebifrons Scelebensis Sverrucosus OM001_Warthog" >snpdif_asianpigsvsaswb_1.txt

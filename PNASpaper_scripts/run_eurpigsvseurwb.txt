@@ -1,0 +1,5 @@
+#!/bin/bash
+#$ -cwd
+#$ -S /bin/sh
+#$ -l h_vmem=5G
+perl findsnpdif_fst.pl -f /shared/Sus/vars_hjm_newbuild10_2/matrix/allvars55_flt.txt -1 "DU23M01_Duroc DU23M02_Duroc DU23M03_Duroc DU23M04_Duroc HA20U01_Hampshire HA20U02_Hampshire LR21M03 LR24F01 LR24F08 LR30F02 LR30F03 LW22F01 LW22F02 LW22F03 LW22F04 LW22F06 LW22F07 LW36F01 LW36F02 LW36F03 LW36F04 LW36F05 LW36F06 PI21F02 PI21F06 PI21M17 PI21M20 PI21M21" -2 "WB21F05_Netherlands WB21M03_Netherlands WB22F01_NL WB22F02_NL WB25U11 WB26M09_Malcantone"  -3 "INDO26_Sbarbatus SCEB01F01_Scebifrons Scelebensis Sverrucosus OM001_Warthog" >snpdif_pigsvswbeur_1.txt
