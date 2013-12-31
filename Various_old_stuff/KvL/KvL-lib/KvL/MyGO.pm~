@@ -1,0 +1,31 @@
+package MyGO;
+use strict;
+use warnings;
+
+
+sub get_child_terms {
+	my $database = 'mygo';
+	my $server = 'localhost';
+	my $user = 'anonymous';
+	my $mygo = DBI->connect("dbi:mysql:$database:$server", $user);
+
+	my ($putative_hgnc)=@_;
+	
+	
+	
+	my $query = "select rchild.name,rchild.acc from term as rchild, term as ancestor, graph_path where graph_path.term2_id = rchild.id and graph_path.term1_id = ancestor.id and ancestor.name = '$name'";
+
+	my $sql = $kvl->prepare($query);
+	$sql->execute();
+	my @return = ();
+	while (my $row = $sql->fetchrow_arrayref) {
+		my $hgnc_name = join("\t", @$row);
+		push (@return , $hgnc_name); 
+	}
+	return @return;
+	$kvl->disconnect;
+}
+
+
+1;
+

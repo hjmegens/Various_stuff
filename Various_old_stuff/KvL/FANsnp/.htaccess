@@ -1,0 +1,4 @@
+AuthType Basic
+AuthName "FAnSnIP login"
+AuthUserFile /var/tmp/kvlpasswords
+Require user hjmegens mgroenen rcrooijmans hkerstens cvanmoorsel bharlizius ajungerius skollers emullaart galbers tveenendaal hnie tvdbraak feiwu pvanas mbitenc

@@ -1,0 +1,64 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 2.3  (Linux)">
+	<META NAME="CREATED" CONTENT="20081210;10343900">
+	<META NAME="CHANGED" CONTENT="20081210;16385200">
+	<STYLE TYPE="text/css">
+	<!--
+		@page { size: 8.5in 11in; margin: 0.79in }
+		P { margin-bottom: 0.08in }
+		H3 { margin-bottom: 0.08in }
+		H3.western { font-family: "Liberation Sans", sans-serif }
+	-->
+	</STYLE>
+</HEAD>
+<BODY LANG="en-US" DIR="LTR">
+<H3 CLASS="western">Search Option: QTL region</H3>
+<P STYLE="margin-bottom: 0in">This option allows you to retrieve all
+the genes in a chromosomal region. The user is requested to submit a
+valid chromosome number and lower and upper coordinates (in
+basepairs) on that chromosome. It is not possible to use genetic
+distances (cM), nor is it allowed to use shorthand for mega- or
+kilobases (e.g. 59Mb in stead of 59000000). Note that no
+out-of-bounds checking is applied, if you give an unrealistic value
+(e.g. 0, or 1000000000) the program will simply crash and not return
+anything.</P>
+<P STYLE="margin-bottom: 0in">	This search option uses the EnsEMBL
+api, which means it retrieves the the data directly from the EnsEMBL
+database. The EnsEMBL database version used for Fansnip is not always
+the latest as the api is update only twice a year. 
+</P>
+<H3 CLASS="western">What to expect:</H3>
+<P STYLE="margin-bottom: 0in">Let's assume you have entered a valid
+chromosome name and coordinates.</P>
+<P STYLE="margin-bottom: 0in">It may take some time for results to
+appear. Then you will see:</P>
+<P STYLE="margin-bottom: 0in">A table will then appear displaying
+chromosome, gene start, gene end, EnsEMBL gene id, and – if
+available – a trivial name. Finally, a summary and description will
+be given for each of the genes, for example: 
+</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"><STRONG>There are 55 genes in
+chromosome 1, bases 56000000 to 59000000 in chicken.</STRONG></P>
+<P STYLE="margin-bottom: 0in"><EM>The description of the chicken gene
+</EM><STRONG><A HREF="http://www.ensembl.org/Gallus_gallus/geneview?gene=ENSGALG00000012662" TARGET="_blank">ENSGALG00000012662
+</A></STRONG><EM>(EnsEMBL name: </EM><STRONG>NUAK1</STRONG><EM>):</EM><BR>NUAK
+family SNF1-like kinase 1 (EC 2.7.11.1) (AMPK-related protein kinase
+5). [Source:Uniprot/SWISSPROT;Acc:O60285]<BR><BR>
+</P>
+<P STYLE="margin-bottom: 0in">You will also notice a button stating
+'submit'. If you press this button, the gene(s) that were found can
+be process in the SNPsearch phase. Alternatively, you can make a
+selection of your genes and submit.</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">If you did not submit a valid name you
+will be notified about it and you can choose to start a new query by
+pressing 'new'.</P>
+</BODY>
+</HTML>

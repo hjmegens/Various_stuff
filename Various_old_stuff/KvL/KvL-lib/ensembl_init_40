@@ -1,0 +1,83 @@
+use strict;
+use Bio::EnsEMBL::Utils::ConfigRegistry;
+use Bio::EnsEMBL::DBSQL::DBAdaptor;
+use Bio::EnsEMBL::Compara::DBSQL::DBAdaptor;
+use Bio::EnsEMBL::Variation::DBSQL::DBAdaptor;
+
+my @aliases;
+ 
+new Bio::EnsEMBL::DBSQL::DBAdaptor(-host => 'ensembldb.ensembl.org',
+                                   -user => 'anonymous',
+                                   -port => 3306,
+                                   -species => 'Homo sapiens',
+                                   -group => 'core',
+                                   -dbname => 'homo_sapiens_core_40_36b');
+
+@aliases = ('H_Sapiens', 'homo sapiens', 'Homo_Sapiens','Homo_sapiens', 'Homo', 'homo', 'human');
+
+Bio::EnsEMBL::Utils::ConfigRegistry->add_alias(-species => "Homo sapiens",
+                                               -alias => \@aliases);
+
+
+new Bio::EnsEMBL::DBSQL::DBAdaptor(-host => 'ensembldb.ensembl.org',
+                                   -user => 'anonymous',
+                                   -port => 3306,
+                                   -species => 'Mus musculus',
+                                   -group => 'core',
+                                   -dbname => 'mus_musculus_core_40_36a');
+
+@aliases = ('M_Musculus', 'mus musculus', 'Mus_Musculus','Mus_musculus', 'Mus', 'mus', 'mouse');
+
+Bio::EnsEMBL::Utils::ConfigRegistry->add_alias(-species => "Mus musculus",
+                                               -alias => \@aliases);
+
+new Bio::EnsEMBL::DBSQL::DBAdaptor(-host => 'ensembldb.ensembl.org',
+                                   -user => 'anonymous',
+                                   -port => 3306,
+                                   -species => 'Rattus norvegicus',
+                                   -group => 'core',
+                                   -dbname => 'rattus_norvegicus_core_40_34j');
+
+@aliases = ('R_Norvegicus', 'rattus norvegicus', 'Rattus_Norvegicus','Rattus_norvegicus', 'Rattus', 'rattus', 'rat');
+
+Bio::EnsEMBL::Utils::ConfigRegistry->add_alias(-species => "Rattus norvegicus",
+                                               -alias => \@aliases);
+
+
+new Bio::EnsEMBL::DBSQL::DBAdaptor(-host => 'ensembldb.ensembl.org',
+                                   -user => 'anonymous',
+                                   -port => 3306,
+                                   -species => 'Gallus gallus',
+                                   -group => 'core',
+                                   -dbname => 'gallus_gallus_core_40_1o');
+
+@aliases = ('G_Gallus', 'gallus gallus', 'Gallus_Gallus','Gallus_gallus', 'Gallus', 'gallus', 'chicken');
+
+Bio::EnsEMBL::Utils::ConfigRegistry->add_alias(-species => "Gallus gallus",
+                                               -alias => \@aliases);
+
+new Bio::EnsEMBL::DBSQL::DBAdaptor(-host => 'ensembldb.ensembl.org',
+                                   -user => 'anonymous',
+                                   -port => 3306,
+                                   -species => 'Bos taurus',
+                                   -group => 'core',
+                                   -dbname => 'bos_taurus_core_40_2c');
+
+@aliases = ('B_Taurus', 'bos taurus', 'Bos_Taurus','Bos_taurus', 'Bos', 'bos', 'cattle' , 'cow');
+
+Bio::EnsEMBL::Utils::ConfigRegistry->add_alias(-species => "Bos taurus",
+                                               -alias => \@aliases);
+
+
+new Bio::EnsEMBL::Compara::DBSQL::DBAdaptor(-host => 'ensembldb.ensembl.org',
+                                            -user => 'anonymous',
+                                            -port => 3306,
+                                            -species => 'Compara',
+                                            -dbname => 'ensembl_compara_40');
+
+@aliases = ('ensembl_compara_40', 'compara40', 'compara', 'Multi', 'multi');
+
+Bio::EnsEMBL::Utils::ConfigRegistry->add_alias(-species => "Compara",
+                                               -alias => \@aliases);
+
+1;

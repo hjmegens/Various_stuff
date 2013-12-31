@@ -1,0 +1,219 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 2.3  (Linux)">
+	<META NAME="CREATED" CONTENT="20081125;15205000">
+	<META NAME="CHANGED" CONTENT="20081125;15314400">
+	<STYLE TYPE="text/css">
+	<!--
+		@page { size: 8.5in 11in; margin: 0.79in }
+		P { margin-bottom: 0.08in }
+		H3 { margin-bottom: 0.08in }
+		H3.western { font-family: "Liberation Sans", sans-serif }
+	-->
+	</STYLE>
+</HEAD>
+<BODY LANG="en-US" DIR="LTR">
+<H3 CLASS="western">GeneSearch - options</H3>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">After selecting a species, you have to
+choose how you want to input your genes. You can input genes
+directly, either by entering a gene name directly, or entering a list
+of gene names from a text file. If you want you can also give an
+EnsEMBL identifier, but this has been mainly put in for development
+purposes.</P>
+<P STYLE="margin-bottom: 0in">There are alternative ways to put genes
+into the pipeline. These gene-selection tools work by retrieving
+genes from a region on the genome (e.g. QTL region), by searching the
+GO database for associated genes, by doing a PubMed search, by
+searching OMIM, by retrieving all the genes that have interactions
+with a particular gene, by inputting two genes and retrieving all the
+genes that are in common in the networks, or by expression level.</P>
+<P STYLE="margin-bottom: 0in">The menu is designed to be
+self-explanatory, but here is some additional information and
+pointers.</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"><B>Option 1: input a single gene name</B></P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">Genes can now be retrieved by
+species-specific gene names. In the past, only official human gene
+names (HGNC-database) could be used. The rationale behind this being
+that this is currently the best curated database of names available.
+This creates minimum of ambiguous results, and getting to the
+orthologue in you favorite species would be done through the EnsEMBL
+Compara database. However, as many of you pointed out, this was not a
+desirable situation as it would often lead to unsatisfactory results
+because the gene would often not be found in the Hugo database. As an
+alternative, searches currently start taking the NCBI Gene database
+as a reference. This is a database containing lots of
+species-specific gene names, and by implementing it, chances of
+finding genes has increased. However, it has also demonstrated new
+problems. 1) This database is not maintained to the degree of the
+Hugo database, and can therefore never be used as a reference
+database 2) Because I will never allow ambiguous results (e.g.
+Multiple hits) to occur – which would undermine the whole idea of
+automated searches – alias names are not taken into account so if
+you do not have the 'correct' name you'll still won't find it 3) As
+the pipeline is designed to take much of the necesary information
+from EnsEMBL, everything depends on proper cross database
+annotations. Currently, many genes are not properly cross-databased
+for many non-model species including cattle and chicken. This means
+that although you will find an entry in NCBI based on your search
+string, you will still not get results. I tried to overcome this by
+then falling back to the old approach of going through Hugo, but this
+is not ideal for several reasons.</P>
+<P STYLE="margin-bottom: 0in">Example: search for bovine DGAT1. The
+pipeline will find this name in the local implementation of the NCBI
+Gene database, and will retrieve an NCBI gene ID (282609). Then it
+gets stuck, however, because there is no proper reference to EnsEMBL.
+Currently the pipeline tries to overcome this by falling back to the
+old system of finding names in the Hugo database. Again, it finds
+this name and proper gene Ids (both for NCBI and EnsEMBL), but then
+gets stuck because there is no proper one-to-one ortholog of the gene
+in cattle. Bottom line: DGAT1 does not return any results because a)
+cross database annotation is imperfect and b) cross species
+annotation is imperfect.</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"><B>Option 2: input multiple genes from
+a text file</B></P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">Same as option 1, but designed to input
+large (basically unlimited) numbers of genes. Same limitations apply
+as to Option 1. What is needed is a list of gene names, one gene name
+per line, in a text file. The text file should be in your working
+directory. If it is not, specify the path to the file.</P>
+<P STYLE="margin-bottom: 0in"><B>Option 3: retrieve genes from a
+genomic region</B></P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">This is a search option that will
+directly take the annotated genes from EnsEMBL for a particular
+region. As many genes are 'predicted' or otherwise poorly annotated,
+it will very often result in returning genes with unclear function.
+Note that currently no check is build in with regard to 'out of
+bound' searches, which means that there is very likely that the
+pipeline will simply crash if you search on a non-existing piece of
+genomic real-estate. 
+</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"><B>Option 4: retrieve genes by querying
+the GO database</B></P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">Currently, this will retrieve human
+genes, and these are subsequently orthologised for our favorite
+species. GO (Gene Ontology) searches can be done from a GO term or GO
+ID as a starting point. The pipeline is designed to give hints in
+case a particular GO term is not found, but this is currently
+implemented in a minimalistic way. Parent and child terms of the GO
+term will be displayed, and all genes annotated to the GO term AND
+its child terms will be retrieved.</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"><B>Option 5: find genes based on a
+PubMed search</B></P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">Will find genes based on a text search
+in the PubMed archives by retrieving gene ids that are annotated to
+the PubMed ids. Currently designed to retrieve human, mouse and rat
+genes, AND the genes of your favorite species. However, a pubmed
+search on 'cattle' and 'milk' may not result in a SNP search for
+'DGAT', for instance, although the gene is found through the PubMed
+search. The same limitations as those in Option 1 are set here.
+Please note that during working hours Eastern Time (USA), the limit
+is set to retrieving information from (the last) 200 pubmed hits.
+After working hours, that number is set at 5000. There is also a
+built in delay between retrieving hits, all of this to prevent the
+NCBI site from being overburdened (NCBI makes it a habit just to
+refuse IP addresses that misbehave; as the whole of WUR is using the
+same IP address, it is possible for a single person in WUR to shut
+down the service for all). It is recommended to narrow your search
+string or plan your search during . Alternatively, contact HJM for
+temporary disabling limitations.</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"><B>Option 6: find genes based on an
+OMIM search</B></P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">Will find human genes which are
+orthologised to genes in your favorite species.</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"><B>Option 7: retrieve genes in the
+network neighborhood of your favorite gene</B></P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">This option will receive human genes
+only, as for human gene-gene interactions are best defined of any
+vertebrate species. The gene-gene interactions are as databased in
+NCBI, which in turn derives this information from other sources
+(BIND, etc). You will be prompted for setting the depth of a network.
+Minimum is 1, the gene of choice + all its direct interactants.
+Maximum is 4, at which depth you will probably retrieve (provided
+there is any interaction data at all for your gene of choice) a
+substantial part of the gene universe. The 
+</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"><B>Option 8: get genes that are common
+in the networks of two genes</B></P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">Similar approach as option 8. However,
+you will be prompted for two genes, and for a depth of the network.
+What will be returned is the part of the network these two genes have
+in common. This could, for instance, be usefull to see which genes
+could be involved in trade-off phenotypes.</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"><B>Option 9: find genes expressed in a
+particular tissue</B></P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">Upon selecting this option, you will be
+presented with a list of tissues. The tissues are species specific,
+and the definition of the tissue is according to the UniGene
+database. You can select one or more tissues, in case you have more
+than one tissue separate tissue numbers with a space, and press
+enter. You will then be prompted for an expression level (10, 100 or
+1000 transcripts per million -TPM), and (in case you have selected
+multiple tissues) for a way how to combine tissues (AND, OR, NOT).
+The expression data is derived from EST-library sequencing studies,
+not from array data. The data can be explored manually by going to
+NCBI-UniGene-Expression profiles. 
+</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">By invoking one of these options, one
+or more genes are retrieved and searched automatically for a number
+of features. Apart from output to the screen (unless the 'silent'
+option is invoked), you will also be presented with a number of
+reports. These reports are filed in the directory 'results' created
+created in the master directory that was created at the start of the
+search. (simultaneously two other subdirectories were created:
+errorlog and temp. These are only important for the program itself,
+and for debugging purposes).</P>
+<P STYLE="margin-bottom: 0in">The results of the 'gensearch' can be
+found in the gensearch.txt and gensearch.htm files. These files
+contain identical information, in the .txt file presented as flat
+text, in the .htm in hyper text markup format which can be displayed
+by your web browser. 
+</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+</BODY>
+</HTML>

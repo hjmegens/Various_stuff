@@ -1,0 +1,552 @@
+package Ask;
+
+use strict;
+use warnings;
+
+use Data::Dumper;
+use LWP::Simple;
+use File::stat;
+
+sub gene {
+	my ($example) = @_;
+	my $gen="";
+	do {
+		$gen = ask_gene($example);
+		unless (Fetch_Ortholog::hgnc_symbol($gen)){
+			print "$gen is not an official Hugo symbol, please try again!\n";
+		}	
+	 } until (Fetch_Ortholog::hgnc_symbol($gen));
+	my ($approved_name) = Fetch_Ortholog::hgnc_symbol($gen);
+	print "HGNC symbol $gen has approved name $approved_name.\n";
+	push (my @result, $gen);
+	
+	print "\nHit enter to continue: ";
+	<>;
+	
+	return @result;
+}
+
+sub species {
+	my $rc = "";
+	do {
+		print "For which species do you want to find genes? ";
+		print "\n(1) $_[0]\n(2) $_[1]\n(3) $_[2]\n(4) $_[3]\n(5) $_[4]\n(6) $_[5]\n";
+		$rc = <>;
+		#$rc = "\n".$rc;
+	}until ($rc =~ /^[123456]\n/);
+	
+ 	$rc =~ s/\n//g;
+  	if($rc eq "1") { $rc = $_[0]; }
+	if($rc eq "2") { $rc = $_[1]; }
+	if($rc eq "3") { 
+		print "Sorry, the $_[2] genome is not yet available, please try again later.\n\n";
+		die "Sorry, the $_[2] genome is not yet available, please try again later.\n\n";}
+	if($rc eq "4") { $rc = $_[3]; }
+	if($rc eq "5") { $rc = $_[4]; }
+	if($rc eq "6") { $rc = $_[5]; }
+  	return $rc;
+}
+
+sub ask_gene {
+	my $rc = "";
+	print "Which gene (HGCN) do you want to retrieve? (example: $_[0]) ";
+	$rc = <>;
+	chomp $rc;
+  	if($rc eq "") { $rc = $_[0]; }
+	$rc = uc $rc;
+	return $rc;
+  	
+}
+
+sub what {	
+	my $rc = "";
+	do {
+		print "How do you want to find your genes? ";
+		print "\n(1) $_[0]\n(2) $_[1]\n(3) $_[2]\n(4) $_[3]\n(5) $_[4]\n(6) $_[5]\n(7) $_[6]\n";
+		$rc = <>;
+		#$rc = "\n".$rc;
+	}until ($rc =~ /^[1234567]\n/);
+	
+ 	$rc =~ s/\n//g;
+  	if($rc eq "1") { $rc = 'gene'; }
+	if($rc eq "2") { $rc = 'qtl'; }
+	if($rc eq "3") { $rc = 'go'; }
+	if($rc eq "4") { $rc = 'pubmed';}
+	if($rc eq "5") { $rc = 'omim';}
+		#print "Sorry, this option is currently too buggy, please try again later.\n\n";
+		#die "Sorry, this option is currently too buggy, please try again later.\n\n";}
+	if($rc eq "6") { $rc = 'list'; }
+	if($rc eq "7") { $rc = 'gene_id'; }
+  	return $rc;
+}
+
+
+
+sub region {
+	my $slice_adaptor = Bio::EnsEMBL::Registry->get_adaptor($_[3],'core','Slice');
+
+	my $chromosome = "";
+	my $start = "";
+	my $end = "";
+	my @gene_ids=();
+
+	print "What chromosomal or qtl region do you want to query?\n Name of chromosome (example: $_[0]) ";
+	$chromosome = <>;
+	chomp $chromosome;
+  	if($chromosome eq "") { $chromosome = $_[0]; }
+	print "start of region in bp (example: $_[1]) ";
+	$start = <>;
+	chomp $start;
+  	if($start eq "") { $start = $_[1]; }
+	print "end of region in bp (example: $_[2]) ";
+	$end = <>;
+	chomp $end;
+  	if($end eq "") { $end = $_[2]; }
+	
+
+	my $slice = $slice_adaptor->fetch_by_region('chromosome', $chromosome, $start, $end);
+	
+	# getting all genes in that region
+	my @genes = @{$slice->get_all_Genes()};
+
+	unless (@genes){
+		die "No genes found based on your entry\n";
+		print "No genes found based on your entry\n";
+	}
+
+	foreach my $gene (@genes){
+		my $gene_id = $gene -> stable_id();
+		print $gene_id."\t".$gene -> external_name()."\n";
+		push (@gene_ids, $gene_id);
+		
+	}
+	print "There are ". @gene_ids . " genes in chromosome $chromosome, bases $start to $end in $_[3].";
+	
+	print "\nHit enter to continue: ";
+	<>;
+	
+	return @gene_ids;
+}
+
+sub go {
+
+	my @gene_ids=();
+
+	print "For which GO term would you like to retrieve associated genes?\nNote: currently only for known human and mouse entries! (example: $_[0]) ";
+	my $go = <>;
+	chomp $go;
+  	if($go eq "") { $go = $_[0]; }
+	
+	my $gene_adaptor_human = Bio::EnsEMBL::Registry->get_adaptor('human' ,'core','Gene');
+	my $gene_adaptor_mouse = Bio::EnsEMBL::Registry->get_adaptor('house mouse' ,'core','Gene');
+
+	my @genes_human = @{$gene_adaptor_human ->fetch_all_by_external_name($go)};
+
+	unless (@genes_human){
+		#die "No human genes found based on your entry\n";
+		print "No human genes found based on your entry\n";
+	}
+	print "Human associations:\n";
+	foreach my $gene_human (@genes_human){
+		my $gene_id = $gene_human -> stable_id();
+		print $gene_id ."\t". $gene_human -> external_name()."\n";
+		
+		push (@gene_ids, $gene_id);
+	}
+
+	my @genes_mouse = @{$gene_adaptor_mouse ->fetch_all_by_external_name($go)};
+
+	unless (@genes_mouse){
+		#die "No human genes found based on your entry\n";
+		print "No mouse genes found based on your entry\n";
+	}
+	print "Mouse associations:\n";
+	foreach my $gene_mouse (@genes_mouse){
+		my $mouse_gene_id = $gene_mouse -> stable_id();
+		print $mouse_gene_id."\t";
+		my @human_ref = Fetch_Ortholog::ortholog('human',$mouse_gene_id, 'house mouse');
+		my $gene_id = $human_ref[0];
+		print $gene_id ."\t". $human_ref[7]."\n";
+		if ($gene_id){
+			push (@gene_ids, $gene_id);
+		}
+	}
+	
+	my @final_results=();
+	my %seen = ( );
+	foreach my $item (@gene_ids) {
+		unless ($seen{$item}) {
+        	# if we get here, we have not seen it before
+        		$seen{$item} = 1;
+        		push(@final_results, $item);
+		}
+	}
+	print "There are ". @final_results . "unique genes in go term $go based on mouse and human.";
+	
+	print "\nHit enter to continue: ";
+	<>;
+	
+	return @final_results;
+}
+
+sub list {
+	
+	my @gene_ids=();
+
+	print "Name of file containing genes? (example: $_[0]) ";
+
+	my $file = <>;
+	chomp $file;
+
+  	if($file eq "") { $file = $_[0]; }
+
+	open(FILE, "$file") or die "can not open file: $file $!\n";
+		
+	
+	
+	my @genes = <FILE>;
+	close (FILE);
+	unless (@genes){
+		die "No genes found in file $file!\n";
+		print "No genes found in file $file!\n";
+	}
+
+	foreach my $gene (@genes){
+		chomp $gene;
+		print $gene."\n";
+		push (@gene_ids, $gene);
+	}
+	
+	
+	print "There are ". @gene_ids . " genes in $file.";
+	
+	print "\nHit enter to continue: ";
+	<>;
+	
+	return @gene_ids;
+}
+
+sub omim {
+	
+	my $query="";
+	my $eutils	= "http://eutils.ncbi.nlm.nih.gov/entrez/eutils";
+	my @results=();
+	print "Search for OMIM classes (example: $_[0]) ";
+	$query = <>;
+	chomp $query;
+  	if($query eq "") { $query = $_[0]; }
+	
+	$query =~ s/ and / AND /g;
+	$query =~ s/ or / OR /g;
+	$query =~ s/ /+/g;
+
+	my $esearch = "$eutils/esearch.fcgi?" .
+              "db=omim&retmax=1&usehistory=y&term=";
+
+	my $esearch_result = get($esearch . $query);
+
+	#print "\nESEARCH RESULT: $esearch_result\n";
+
+	$esearch_result =~ 
+	  m|<Count>(\d+)</Count>.*<QueryKey>(\d+)</QueryKey>.*<WebEnv>(\S+)</WebEnv>|s;
+
+	my $Count    = $1;
+	my $QueryKey = $2;
+	my $WebEnv   = $3;
+
+	#print "Count = $Count; QueryKey = $QueryKey; WebEnv = $WebEnv\n";
+
+	print "There are $Count OMIM hits\n";
+	my $retstart;
+
+	for($retstart = 0; $retstart < $Count; ++$retstart) {
+		my $num_genes=0;
+		my $efetch = "$eutils/efetch.fcgi?" . "rettype=uilist&retmode=text&retstart=$retstart&retmax=1&" .
+               "db=omim&query_key=$QueryKey&WebEnv=$WebEnv";
+		my $efetch_result = get($efetch);
+		#print $efetch_result."\n";
+  		my $elink = "$eutils/elink.fcgi?usehistory=y&id=$efetch_result&cmd=omim_gene&dbFrom=omim&db=gene";
+
+		my $elink_result = get($elink);
+		#print $elink_result."\n";
+		while ($elink_result =~ /<Link>\n\t\t\t<Id>(\d+)<\/Id>\n\t\t<\/Link>/g){
+			push (@results,$1);
+			++$num_genes;
+		}
+		print "OMIM hit " . ($retstart+1) . " has $num_genes genes associated\n";
+		#print $elink_result."\n";
+  		#print "(".($retstart+1) . "): $efetch_result\n";
+	}
+	
+	my %count = ( );
+	foreach my $element (@results) {
+	    $count{$element}++;
+	}
+	while ( my ($k,$v) = each %count ) {
+	    print "$k => $v\n";
+	}
+	
+
+	my @final_results=();
+	my %seen = ( );
+	foreach my $item (@results) {
+		unless ($seen{$item}) {
+        	# if we get here, we have not seen it before
+        		$seen{$item} = 1;
+        		push(@final_results, $item);
+		}
+	}
+	
+	my $total_genes=0;
+	my @sub_return = ();
+
+	foreach my $final_result (@final_results){
+		my ($human_gene) = Fetch_Ortholog::entrez_gene_id($final_result);
+		if ($human_gene){
+			print "$final_result\t$human_gene\n";
+			push (@sub_return, $human_gene);
+			++$total_genes;
+		}
+		else {
+			my $human_gene2 = Fetch_Ortholog::mouse_entrez($final_result);
+			if ($human_gene2){
+				print "$final_result\t$human_gene2\n";
+				push (@sub_return, $human_gene2);
+				++$total_genes;
+				
+			}
+		}
+	}
+
+	my @return=();
+	%seen = ( );
+	foreach my $item (@sub_return) {
+		unless ($seen{$item}) {
+        	# if we get here, we have not seen it before
+        		$seen{$item} = 1;
+        		push(@return, $item);
+		}
+	}
+	
+	print "There are $total_genes associated with the OMIM query, of which ". @return . " unique ids.";
+	
+	open QUERY, ">$query-omim.txt";
+	foreach my $ret (@return){
+		print QUERY $ret."\n";
+	}
+	close (QUERY);
+	print "\nHit enter to continue: ";
+	<>;
+	print "\n\n";
+	return @return;
+
+}
+
+	
+sub pubmed {
+	
+	my $query="";
+	my $eutils	= "http://eutils.ncbi.nlm.nih.gov/entrez/eutils";
+	my @results=();
+	print "Find genes based on pubmed search (example: $_[0]) ";
+	$query = <>;
+	chomp $query;
+  	if($query eq "") { $query = $_[0]; }
+	
+	$query =~ s/ and / AND /g;
+	$query =~ s/ or / OR /g;
+	$query =~ s/ /+/g;
+
+	my $esearch = "$eutils/esearch.fcgi?" .
+              "db=pubmed&retmax=1&usehistory=y&term=";
+
+	my $esearch_result = get($esearch . $query);
+
+	#print "\nESEARCH RESULT: $esearch_result\n";
+
+	$esearch_result =~ 
+	  m|<Count>(\d+)</Count>.*<QueryKey>(\d+)</QueryKey>.*<WebEnv>(\S+)</WebEnv>|s;
+
+	my $Count    = $1;
+	my $QueryKey = $2;
+	my $WebEnv   = $3;
+
+	#print "Count = $Count; QueryKey = $QueryKey; WebEnv = $WebEnv\n";
+	print "There are $Count pubmed hits\n";
+
+	my $retstart;
+
+	for($retstart = 0; $retstart < $Count; ++$retstart) {
+		my $num_genes=0;
+		my $efetch = "$eutils/efetch.fcgi?" . "rettype=uilist&retmode=text&retstart=$retstart&retmax=1&" .
+               "db=pubmed&query_key=$QueryKey&WebEnv=$WebEnv";
+		my $efetch_result = get($efetch);
+	
+		#print $efetch_result."\n";
+  		my $elink = "$eutils/elink.fcgi?usehistory=y&id=$efetch_result&cmd=pubmed_gene&dbFrom=pubmed&db=gene";
+
+		my $elink_result = get($elink);
+		while ($elink_result =~ /<Link>\n\t\t\t<Id>(\d+)<\/Id>\n\t\t<\/Link>/g){
+			push (@results,$1);
+			++$num_genes
+		}
+		print "pubmed hit " . ($retstart+1) . " has $num_genes genes associated\n";
+		#print $elink_result."\n";
+  		#print "(".($retstart+1) . "): $efetch_result\n";
+	}
+	print "\n";
+
+
+	my %count = ( );
+	foreach my $element (@results) {
+	    $count{$element}++;
+	}
+	while ( my ($k,$v) = each %count ) {
+	    print "$k => $v\n";
+	}
+	
+
+	my @final_results=();
+	my %seen = ( );
+	foreach my $item (@results) {
+		unless ($seen{$item}) {
+        	# if we get here, we have not seen it before
+        		$seen{$item} = 1;
+        		push(@final_results, $item);
+		}
+	}
+	
+	my $total_genes=0;
+	my @sub_return = ();
+
+	foreach my $final_result (@final_results){
+		my ($human_gene) = Fetch_Ortholog::entrez_gene_id($final_result);
+		if ($human_gene){
+			print "$final_result\t$human_gene\n";
+			push (@sub_return, $human_gene);
+			++$total_genes;
+		}
+		else {
+			my $human_gene2 = Fetch_Ortholog::mouse_entrez($final_result);
+			if ($human_gene2){
+				print "$final_result\t$human_gene2\n";
+				push (@sub_return, $human_gene2);
+				++$total_genes;
+				
+			}
+		}
+	}
+
+	my @return=();
+	%seen = ( );
+	foreach my $item (@sub_return) {
+		unless ($seen{$item}) {
+        	# if we get here, we have not seen it before
+        		$seen{$item} = 1;
+        		push(@return, $item);
+		}
+	}
+	
+	print "There are $total_genes associated with the pubmed query, but ". @return . " unique ids.";
+	
+	open QUERY, ">$query-pubmed.txt";
+	foreach my $ret (@return){
+		print QUERY $ret."\n";
+	}
+	close (QUERY);
+	print "\nHit enter to continue: ";
+	<>;
+	print "\n\n";
+	return @return;
+	
+}
+
+sub intro {
+	my $path = "KvL";
+	print "\n\n\n==============================================================\n";
+	print " KvL Toolbox version 0.01\n";
+	print "\n";
+	print " components                          last modified\n";
+	print "--------------------------------------------------------------\n";
+	my $sb =stat('DevKvL0.pl');
+	my $age = scalar localtime $sb->mtime;
+	print " main:      DevKvL0.pl               $age\n";
+	$sb =stat("$path/Ask.pm");
+	$age = scalar localtime $sb->mtime;
+	print " module:    Ask.pm                   $age\n";
+	$sb =stat("$path/Fetch_Ortholog.pm");
+	$age = scalar localtime $sb->mtime;
+	print " module:    Fetch_Ortholog.pm        $age\n";	
+	$sb =stat("$path/Snps.pm");
+	$age = scalar localtime $sb->mtime;
+	print " module:    Snps.pm                  $age\n";	
+	$sb =stat("$path/Gene_Attributes.pm");
+	$age = scalar localtime $sb->mtime;
+	print " module:    Gene_Attributes.pm       $age\n";		
+	$sb =stat("$path/Mirna.pm");
+	$age = scalar localtime $sb->mtime;
+	print " module:    Mirna.pm                 $age\n";	
+	$sb =stat("$path/Comparebyblast.pm");
+	$age = scalar localtime $sb->mtime;
+	print " module:    Comparebyblast.pm        $age\n";
+	$sb =stat("$path/FootPrinterPerl.pm");
+	$age = scalar localtime $sb->mtime;
+	print " module:    FootPrinterPerl.pm       $age\n";
+	$sb =stat("$path/CloverPerl.pm");
+	$age = scalar localtime $sb->mtime;
+	print " module:    CloverPerl.pm            $age\n";
+	print "--------------------------------------------------------------\n";
+	print " mySQLdb:   kvl\n";
+	print "--------------------------------------------------------------\n";
+	print " API:       EnsEMBL44\n";
+	print " API:       GenBank (NCBI) etools\n";
+	print "--------------------------------------------------------------\n";
+	print " program:   miRanda\n";
+	print " program:   Blast (bl2seq)\n";
+	print " program:   FootPrinter\n";
+	print " program:   Clover\n";
+	print "==============================================================\n\n";
+	print "==============================================================\n";
+	print "This program has the option to run in silent mode for job\n";
+	print "processing on the lx servers. Type anything (+enter) but\n";
+	print "'silent' on the next prompt to run verbose mode\n\n";
+	print "Running mode: ";
+	my $running_mode = <>;
+	print "==============================================================\n\n";
+	chomp $running_mode;
+	if ($running_mode eq 'silent'){
+		print "\n\nRun starts at " . scalar (localtime) ."\n\n";
+		open STDOUT, ">temp/tmp";
+	}
+	return $running_mode;
+	
+}
+
+sub ensemblgeneid {
+	my ($example, $species) = @_;
+	my $gen="";
+	my $gene_adaptor = Bio::EnsEMBL::Registry->get_adaptor($species ,'core','Gene');
+	do {
+		$gen = "";
+		print "Which gene id for $species do you want to retrieve? (example: $example)";
+		$gen = <>;
+		chomp $gen;
+  		if($gen eq "") { $gen = $example; }
+		$gen = uc $gen;
+	
+		unless ($gene_adaptor->fetch_by_stable_id($gen)){
+			print "$gen is not a recognize gene id for $species, please try again!\n";
+		}	
+	 } until ($gene_adaptor->fetch_by_stable_id($gen));
+	
+	print "$gen is a valid stable id for $species.\n";
+	
+	push (my @result, $gen);
+	
+	print "\nHit enter to continue: ";
+	<>;
+	
+	return @result;
+}
+
+1;

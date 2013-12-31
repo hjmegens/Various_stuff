@@ -1,0 +1,173 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 2.4  (Linux)">
+	<META NAME="AUTHOR" CONTENT="HJ Megens">
+	<META NAME="CREATED" CONTENT="20080715;16323100">
+	<META NAME="CHANGEDBY" CONTENT="HJ Megens">
+	<META NAME="CHANGED" CONTENT="20080715;16405600">
+	<STYLE TYPE="text/css">
+	<!--
+		@page { size: 8.5in 11in; margin: 0.79in }
+		P { margin-bottom: 0.08in }
+		H3 { margin-bottom: 0.08in }
+		H3.western { font-family: "Liberation Sans", sans-serif }
+	-->
+	</STYLE>
+</HEAD>
+<BODY LANG="en-US" DIR="LTR">
+<H3 CLASS="western" ALIGN=CENTER>Proposal for the Kwaliteit van Leven
+project</H3>
+<H3 CLASS="western" ALIGN=CENTER>period 15-07-08 to 31-12-08</H3>
+<H3 CLASS="western" ALIGN=CENTER></H3>
+<P STYLE="margin-bottom: 0in">The major aim for the Quality of Life
+project has been to investigate how to utilize current genomic data
+for breeding practices. In the course of this project a tool has been
+developed called FanSNiP
+(<FONT COLOR="#000080"><U>http://scomp1038.wur.nl/FANsnp/kvl_toolbox.cgi</U></FONT>).
+This tool has been conceived to facilitate a 'high troughput
+implementation of the candidate gene approach', automating the whole
+process from finding candidate genes to finding putative functional
+mutations in those genes, not limiting the researcher to just a few
+genes but making it possible to even use the whole of the
+transcriptome as the starting point of a candidate gene approach, and
+still needing only hours, or days at most, to get a comprehensive
+list of candidate genes and SNPs. The tool was never meant to be a
+black box, but rather a protocol to demonstrate how the content of
+various databases could be smartly searched and combined, hammering
+home the message that one need not limit oneself to just a few
+favorite genes.  
+</P>
+<P STYLE="margin-bottom: 0in">	For the next stage of the KvL project
+it was proposed to return to the initial research aims and cases. We
+set out to see how current knowledge on genomics could increase our
+understanding of trade-off phenotypes in animal breeding. The cases
+that were provided all revolved around decreased fertility or
+mothering capabilities in animals that have been very heavily
+selected for meat (or milk) production. Such trade-off traits are
+very difficult to deal with using tradition breeding practices, and
+it is believed that genomic information may add to solving problems
+involving such traits.</P>
+<P STYLE="margin-bottom: 0in">	Text-based searches using OMIM and
+Pubmed are a logical starting point to directly investigate which
+genes could be related to any the phenotypes. Gene Set Enrichment
+analysis, which is now a filtering option in Fansnip, will provide
+additional insight into the pathways involved as can be derived from
+the GO annotations of the genes. These GO annotations themselves
+could be further used to investigate a) where pathways intersect and
+b) to select additional genes that could be involved in the phenotype
+while not explicitly searchable through pubmed and OMIM. In addition,
+the pathways will be further elucidated using the gene-interaction
+options provided by FANSNIP. Ultimately, a list of genes could be
+further narrowed down by only selecting genes that are expressed in
+relevant tissues (e.g. the gonads) or life stage. If available QTL
+information can also be used to further narrow down a list of
+candidate genes.</P>
+<P STYLE="margin-bottom: 0in">	For each step in the search process it
+will be made explicit what databases were searched and how, this way
+providing more insight into the 'protocol' that essentially
+constitutes the tool. Along the way, it is likely that adjustments
+will have to be made to the Fansnip tool to accommodate current
+inefficiencies or inadequacies..</P>
+<P STYLE="margin-bottom: 0in">	The ultimate outcome should be:</P>
+<P STYLE="margin-bottom: 0in">1)Increased insight in genes involved
+in trade-off characters</P>
+<P STYLE="margin-bottom: 0in">2)These results should be compared to
+the report of prof. Decuypere</P>
+<P STYLE="margin-bottom: 0in">3)Description of the Fansnip tool as a
+protocol for finding genes and SNPs</P>
+<P STYLE="margin-bottom: 0in">4)preparation of a paper describing
+these outcomes</P>
+<P STYLE="margin-bottom: 0in">5)increased functionality and
+utilization of the Fansnip tool</P>
+<P STYLE="margin-bottom: 0in">A scientific paper, even if not aimed
+at a high-ranking journal, should be one of our aims. While it may be
+difficult to present this as a 'novel' tool, particularly as it will
+be difficult to open the fansnip website to a general public, the
+outcome from a case study may provide enough interesting insights
+both into the biology and utilization of resources. 
+</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<H3 CLASS="western">A sample query</H3>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">A text based query was done both for
+fertility (female sided) and growth related terms. Pubmed  and OMIM
+were searched with the terms 'female and fertility'. A 'growth'
+related search was  set up by applying 'body size and growth' to OMIM
+and  “gene and growth and muscle and size” to Pubmed. Combining
+the 'fertility' searches yielded 557 genes involved in this 'trait',
+while 'growth' yielded 478 genes. 
+</P>
+<P STYLE="margin-bottom: 0in">	To filter out spurious hits as much as
+possible and to end up with genes that fall into groups of pathways,
+a Gene Set Enrichment analysis was done to select only genes with
+significant associations (p&lt;0.00001). A total of 351 and 335 genes
+passed this filtering step, the results are shown in 1) and 2). 
+</P>
+<P STYLE="margin-bottom: 0in">	The next step was to combine both
+searches, and to see which genes were in common. In total, 94 genes
+were returned which can be viewed in (3) (including associated GO
+terms). Given that the constraint (fertility) is likely related to
+the tissue 'ovary' it was decided to only take into account those
+genes that are expressed in this tissue. It turned out that 50 of 94
+genes were expressed at a level of &gt;10 TPM (Transcripts Per
+Million) (4). 
+</P>
+<P STYLE="margin-bottom: 0in">	By using the default options in
+Fansnip and combining multiple runs a list of 50 candidate genes that
+may be important in both fertility and growth related pathways were
+thus identified. With this straightforward approach, many of the
+'suspects' turn up. The one everybody would expect, as this has been
+the focal point of several of our previous discussions on the
+subject, is IGF1. IGF2 is not there as it is not expressed in the
+chicken ovary at &gt;10 TPM but several other genes in the 'insulin
+receptor signaling pathway' (GO:0008286) such as IGF1 and IGF2
+receptors and an IGF binding protein are there, resulting in a
+significant (p&lt;0.0001) test score in the GSE test (5).</P>
+<P STYLE="margin-bottom: 0in">	Next to the IGF-related genes, several
+other well-known growth factors and receptors are identified that
+were also suggested by prof. Decuypere (Table 7 in his report), such
+as BMP, GH and TNF, EGF, FGF. One of few not identified here and
+perhaps the most conspicuous is LEP, which did not turn up in the
+text based searches (although LEPR did but did not pass GSE
+filtering).  GDF8 is perhaps one of the more interesting ones not
+identified by prof. Decuypere.</P>
+<P STYLE="margin-bottom: 0in">	Perhaps equally importantly a number
+of lesser known genes were selected. Many of these genes turn out to
+be transcription factors, which seems to be consistent with most of
+the GO terms being of the 'regulation of development' and 'regulation
+of transcription' type. If one compares this to the GO associations
+of 'fertility' (1) and 'growth' (2), this suggests that the overlap
+between reproduction and growth is 'higher up' in the regulation
+pathways. I have not quantified this really, although combining the
+GO terms associated with both text based searches do suggest that
+specific 'reproduction' or 'growth' related GO terms tend to be
+non-overlapping, while regulation related GO-terms are (data not
+shown).</P>
+<P STYLE="margin-bottom: 0in">	Even this relatively straightforward
+query shows that many of the ideas on important 'trade-off genes' can
+be reproduced using the protocols implemented in  Fansnip. Perhaps of
+even more interest additional growth factors could be identified, as
+well as a considerable number of other genes, many of which are
+transcription factors. These genes, in retrospect, make lots of sense
+but would perhaps not have been identified so readily using
+'traditional' methods. In fact, Fansnip gives even more clues as it
+also provides – through the GO analysis – hints on pathways,
+pathways which can be further analysed using other methods
+implemented in Fansnip. This will be – a.o. - the focus for the
+remaining time in the project.</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<OL>
+	<LI><P STYLE="margin-bottom: 0in"><FONT COLOR="#000080"><U>http://scomp1038.wur.nl/FANsnp/kvl_toolbox.cgi?rn=iLxUtbFb&amp;description=chicken_List%20from%20textfile_fert_female_comb_omim_pubmed.txt</U></FONT></P>
+	<LI><P STYLE="margin-bottom: 0in"><FONT COLOR="#000080"><U>http://scomp1038.wur.nl/FANsnp/kvl_toolbox.cgi?rn=Qdaq5Yni&amp;description=chicken_List%20from%20textfile_comb_growth_omim_pubmed.txt</U></FONT></P>
+	<LI><P STYLE="margin-bottom: 0in"><FONT COLOR="#000080"><U>http://scomp1038.wur.nl/FANsnp/kvl_toolbox.cgi?rn=tKftx0tB&amp;description=chicken_List%20from%20textfile_fert_growth_combined.txt</U></FONT></P>
+	<LI><P STYLE="margin-bottom: 0in"><FONT COLOR="#000080"><U>http://scomp1038.wur.nl/FANsnp/kvl_toolbox.cgi?rn=ZGPvMYkN&amp;description=chicken_List%20from%20textfile_fert_growth_combined.txt</U></FONT></P>
+	<LI><P STYLE="margin-bottom: 0in"><FONT COLOR="#000080"><U>http://scomp1038.wur.nl/FANsnp/kvl_toolbox.cgi?rn=A8Be9VHf&amp;description=chicken_List%20from%20textfile_fert_growth_combined_ovaryexpress.txt</U></FONT></P>
+</OL>
+</BODY>
+</HTML>

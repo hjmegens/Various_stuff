@@ -1,0 +1,632 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 2.3  (Linux)">
+	<META NAME="CREATED" CONTENT="20070607;9590800">
+	<META NAME="CHANGEDBY" CONTENT="Hendrik-Jan Megens">
+	<META NAME="CHANGED" CONTENT="20080516;22455100">
+	<STYLE TYPE="text/css">
+	<!--
+		@page { size: 8.5in 11in; margin: 0.79in }
+		P { margin-bottom: 0.08in }
+		P.sdendnote { margin-left: 0.2in; text-indent: -0.2in; margin-bottom: 0in; font-size: 10pt }
+		A.sdendnoteanc { font-size: 57% }
+	-->
+	</STYLE>
+</HEAD>
+<BODY LANG="en-US" DIR="LTR">
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P ALIGN=CENTER STYLE="margin-bottom: 0in"><FONT SIZE=7 STYLE="font-size: 44pt"><B>FAnSnIP</B></FONT></P>
+<P ALIGN=CENTER STYLE="margin-bottom: 0in"><BR>
+</P>
+<P ALIGN=CENTER STYLE="margin-bottom: 0in"><FONT SIZE=6><B>Functional
+Animal SNP Identification Program</B></FONT></P>
+<P ALIGN=CENTER STYLE="margin-bottom: 0in"><BR>
+</P>
+<P ALIGN=CENTER STYLE="margin-bottom: 0in"><B>A pipeline formerly
+known as:</B></P>
+<P ALIGN=CENTER STYLE="margin-bottom: 0in"><FONT SIZE=5><B>Kwaliteit
+van Leven Toolbox</B></FONT></P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"><B>Documentation v.  0.95.0 15-05-2008</B></P>
+<P STYLE="margin-bottom: 0in"><B>Author: H.-J. Megens</B></P>
+<P STYLE="margin-bottom: 0in"><B>Introduction</B></P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">Over the past years a wealth of genomic
+information has become available for the species that are the main
+focus for animal breeding in the Netherlands. The genomes of cattle
+and chicken are in an advanced stage of being sequenced and
+annotated, and for both species a large variation database is also
+available. While for pig this stage has currently (February 2008) not
+yet been reached, rapid progress is expected, with the first draft
+chromosome sequences currently being deposited in EnsEMBL.  The major
+breeding companies in the Netherlands, i.e. Institute for Pig
+Genetics (IPG), Holland Genetics and Hendrix Genetics, in
+collaboration with Wageningen UR – Animal Breeding and Genomics
+Center and with financial support from Center, have set up a
+collaborative effort aimed at better utilizing the information that
+is now publicly available.</P>
+<P STYLE="margin-bottom: 0in">	The project not only aims at utilizing
+genomic information of cattle, pig and chicken, but also aims at
+implementation of knowledge obtained from model species such as
+mouse, rat and human. Such information becomes particularly relevant
+for features that are relatively well annotated in a species such as
+human. One can think about annotations of regulatory elements, but
+also GO  terms and Kegg pathways. In addition, for model species
+expression and gene-gene interaction data is becoming available that
+could be used to elucidate gene pathways or gene networks involved in
+interesting phenotypes for commercial breeding.</P>
+<P STYLE="margin-bottom: 0in">	Accessing all this information
+provides several major challenges. First of all, much of the
+information currently available is highly fragmented. This means that
+one has to query multiple databases to acquire the information
+needed. Moreover, access to certain databases is not straightforward
+and getting the right information in the right format is often a
+daunting task. 
+</P>
+<P STYLE="margin-bottom: 0in">	Combining all the data is
+labor-intensive. Just for a single candidate gene one could spend
+many hours getting all the information, from literature search to
+getting SNPs. For larger SNP arrays to type variation in a whole
+pathway, a manual search of SNPs becomes even almost impractical. For
+medical studies tools are becoming available to aid in selecting SNPs
+for association studies. However, for animal breeding such tools are
+not available.</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"><B>The toolbox: rationale</B></P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">Let us hypothesize that one of the
+breeding companies is interested in a particular phenotype and its
+genetic basis. Current practices can largely be divided in two
+strategies:  QTL analysis or a candidate gene approach.  Both
+approaches have their strengths and pitfalls. QTL analysis can
+potentially generate information regarding genomic regions involved
+in phenotypes using anonymous markers and no prior knowledge on
+genetic pathways involved in the phenotype of interest. However, one
+requires a fairly high density of markers and very expensive
+experimental breeding designs.</P>
+<P STYLE="margin-bottom: 0in">	The promise of a candidate gene
+approach, on the other hand, is to target only a small number of loci
+(even perhaps a single SNP) with a possible association to a
+phenotype. The candidate gene approach, however, is labor intensive
+in the sense that prior knowledge, e.g. from model organisms, is
+required and SNPs furthermore are chosen for high likelihood of
+representing functional mutations, which requires additional
+analyses. Another disadvantage of the candidate gene approach is that
+it is either 'hit or mis' – chances of any one gene, and the SNPs
+therein, would be involved in the phenotype to a sufficiently large
+effect to be detectable in a moderate to small experimental breeding
+design are not very large, although they may be enlarged by adding
+knowledge regarding functional aspects of the variation under study. 
+</P>
+<P STYLE="margin-bottom: 0in">	Candidate gene studies have
+traditionally involved small numbers of genes and variations. Cost of
+genotyping has been a major factor in keeping such studies
+low-throughput. However, with costs of custom genotyping assays
+dropping rapidly in the past years, studies will become less limited
+by the overall size of the genotyping effort. Therefore, the
+limitations for 'high throughput candidate gene approach' are
+shifting more towards the time and effort involved in finding
+candidate genes, and finding variation within or near those genes
+that is likely to affect the function of these genes. 
+</P>
+<P STYLE="margin-bottom: 0in">	A 'high throughput candidate gene
+approach' would enlarge the chance of finding functional variation,
+while still being in a genotyping format of say 400 to 1500 snps
+(upper end of Illumina VeraCode and Sentrix Arrays, respectively)
+that are too small for a genome-wide high-density QTL analysis. The
+added advantage of candidate gene studies is that it can address the
+genetics of problems in breeding that are very difficult to solve
+with conventional breeding practices. One can particularly think
+about trade-off problems;  when lines are very strongly selected for
+one trait, e.g. growth or meat production, this often creates
+problems in other traits of the animals that are less strongly
+selected, such as fertility. 
+</P>
+<P STYLE="margin-bottom: 0in">	With more and more information
+becoming available regarding functions of genes, expression,
+regulation, interactions and variation, candidate gene approaches
+could potentially become more and more powerful. At the same time,
+however, the number of genes known to be potentially involved in a
+phenotype is also growing.  A high throughput candidate gene study,
+therefore, becomes impractical to design by hand, and there is a need
+for automation. 
+</P>
+<P STYLE="margin-bottom: 0in">	The 'Kwaliteit van Leven' project aims
+at the development of research tools for better understanding the
+relationship between phenotype and genotype. It specifically aims at
+utilizing much of the genomics resources that are becoming available.
+The tools are 'modules', little programs designed to perform a
+specific task. These tasks vary from retrieving, combining and
+manipulating  information from databases to analysis on data
+implementing third party software and combining and manipulating
+results from such analysis. 
+</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"><FONT SIZE=6><B>Manual</B></FONT></P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"><FONT SIZE=4><B>Setting up the
+workspace</B></FONT></P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">You need an account on the lx3 server
+to use the Toolbox. At this stage you can only access it while
+working at the Zodiac building. You can access the lx3 by using ssh
+(secure shell) login. If you are using a windows workstation, use an
+ssh client such as Putty. It is also a good idea to install an SFTP
+client tool such as WinSCP3 to move files to and from the lx3. 
+</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">Log into the lx3. Type: KvL.</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">Select your species of choice by typing
+the number and  &lt;ENTER&gt;.  Please note that, because the pig
+genome is not yet available, functionality for this species is very
+limited (currently – almost - none). Note that as soon as the
+program is invoked, a folder will be created in your working
+directory called kvltempXXXXXXXX (X can be any hexadecimal). The
+unique, randomly generated name will ensure that no two result
+folders are the same which is important for certain automated
+processes. Some have complained about the awkward names. There is
+another option where you can generate folder names of your own
+choice:</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">% KvL -t mydir</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">where 'mydir' can be replaced by any
+name you want (avoid spaces in dirnames!). As it is possible that you
+inadvertently choose a name twice, choose illegal characters or
+otherwise compromise the directory assignment procedure, it is
+recommended to use this option with caution.</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"><FONT SIZE=4><B>Gene Search</B></FONT></P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">After selecting a species, you'll be
+prompted with a menu of options about how you want to input your
+genes. You can input genes directly, either by typing a gene name
+directly at the command line (option 1), or giving a list of gene
+names from a text file (option 6). If you want you can also give an
+EnsEMBL identifier (option 7), but this has been mainly put in for
+development purposes.</P>
+<P STYLE="margin-bottom: 0in">	There are alternative ways to put
+genes into the pipeline. These gene-selection tools work by
+retrieving genes from a region on the genome (e.g. QTL region),
+option 2, by searching the GO database for associated genes (option
+3), by doing a PubMed search (option 4), by searching OMIM (option
+5), by retrieving all the genes that have interactions with a
+particular gene, (option 8), by inputting two genes and retrieving
+all the genes that are in common in the networks (option 9), or by
+expression level (option 10).</P>
+<P STYLE="margin-bottom: 0in">The menu is designed to be
+self-explanatory, but here is some additional information and
+pointers.</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"><B>Option 1: input a single gene name</B></P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">Genes can now be retrieved by
+species-specific gene names. In the past, only official human gene
+names (HGNC-database) could be used. The rationale behind this being
+that this is currently the best curated database of names available.
+This creates minimum of ambiguous results, and getting to the
+orthologue in you favorite species would be done through the EnsEMBL
+Compara database. However, as many of you pointed out, this was not a
+desirable situation as it would often lead to unsatisfactory results
+because the gene would often not be found in the Hugo database. As an
+alternative, searches currently start taking the NCBI Gene database
+as a reference. This is a database containing lots of
+species-specific gene names, and by implementing it, chances of
+finding genes has increased. However, it has also demonstrated new
+problems. 1) This database is not maintained to the degree of the
+Hugo database, and can therefore never be used as a reference
+database 2) Because I will never allow ambiguous results (e.g.
+Multiple hits) to occur – which would undermine the whole idea of
+automated searches – alias names are not taken into account so if
+you do not have the 'correct' name you'll still won't find it 3) As
+the pipeline is designed to take much of the necesary information
+from EnsEMBL, everything depends on proper cross database
+annotations. Currently, many genes are not properly cross-databased
+for many non-model species including cattle and chicken. This means
+that although you will find an entry in NCBI based on your search
+string, you will still not get results. I tried to overcome this by
+then falling back to the old approach of going through Hugo, but this
+is not ideal for several reasons.</P>
+<P STYLE="margin-bottom: 0in">	Example: search for bovine DGAT1. The
+pipeline will find this name in the local implementation of the NCBI
+Gene database, and will retrieve an NCBI gene ID (282609). Then it
+gets stuck, however, because there is no proper reference to EnsEMBL.
+Currently the pipeline tries to overcome this by falling back to the
+old system of finding names in the Hugo database. Again, it finds
+this name and proper gene Ids (both for NCBI and EnsEMBL), but then
+gets stuck because there is no proper  one-to-one ortholog of the
+gene in cattle. Bottom line: DGAT1 does not return any results
+because a) cross database annotation is imperfect and b) cross
+species annotation is imperfect.</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"><B>Option 2: retrieve genes from a
+genomic region</B></P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">This is a search option that will
+directly take the annotated genes from EnsEMBL for a particular
+region. As many genes are 'predicted' or otherwise poorly annotated,
+it will very often result in returning genes with unclear function.
+Note that currently no check is build in with regard to 'out of
+bound' searches, which means that there is very likely that the
+pipeline will simply crash if you search on a non-existing piece of
+genomic real-estate. 
+</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"><B>Option 3: retrieve genes by querying
+the GO database</B></P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">Currently, this will retrieve human
+genes, and these are subsequently orthologised for our favorite
+species. GO (Gene Ontology) searches can be done from a GO term or GO
+ID as a starting point. The pipeline is designed to give hints in
+case a particular GO term is not found, but this is currently
+implemented in a minimalistic way. Parent and child terms of the GO
+term will be displayed, and all genes annotated to the GO term AND
+its child terms will be retrieved.</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"><B>Option 4: find genes based on a
+PubMed search</B></P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">Will find genes based on a text search
+in the PubMed archives by retrieving gene ids that are annotated to
+the PubMed ids. Currently designed to retrieve human, mouse and rat
+genes, AND the genes of your favorite species. However, a pubmed
+search on 'cattle' and 'milk' may not result in a SNP search for
+'DGAT', for instance, although the gene is found through the PubMed
+search. The same limitations as those in Option 1 are set here.
+Please note that during working hours Eastern Time (USA), the limit
+is set to retrieving information from (the last) 200 pubmed hits.
+After working hours, that number is set at 5000. There is also a
+built in delay between retrieving hits, all of this to prevent the
+NCBI site from being overburdened (NCBI makes it a habit just to
+refuse IP addresses that misbehave; as the whole of WUR is using the
+same IP address, it is possible for a single person in WUR to shut
+down the service for all). It is recommended to narrow your search
+string or plan your search during . Alternatively, contact HJM for
+temporary disabling limitations.</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"><B>Option 5: find genes based on an
+OMIM search</B></P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">Will find human genes which are
+orthologised to genes in your favorite species.</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"><B>Option 6: input multiple genes from
+a text file</B></P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">Same as option 1, but designed to input
+large (basically unlimited) numbers of genes. Same limitations apply
+as to Option 1. What is needed is a list of gene names, one gene name
+per line, in a text file. The text file should be in your working
+directory. If it is not, specify the path to the file.</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"><B>Option 7: input a gene by EnsEMBL
+identifier</B></P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">Mainly usefull for development
+purposes.</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"><B>Option 8: retrieve genes in the
+network neighborhood of your favorite gene</B></P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">This option will receive human genes
+only, as for human gene-gene interactions are best defined of any
+vertebrate species. The gene-gene interactions are as databased in
+NCBI, which in turn derives this information from other sources
+(BIND, etc). You will be prompted for setting the depth of a network.
+Minimum is 1, the gene of choice + all its direct interactants.
+Maximum is 4, at which depth you will probably retrieve (provided
+there is any interaction data at all for your gene of choice) a
+substantial part of the gene universe. The 
+</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"><B>Option 9: get genes that are common
+in the networks of two genes</B></P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">Similar approach as option 8. However,
+you will be prompted for two genes, and for a depth of the network.
+What will be returned is the part of the network these two genes have
+in common. This could, for instance, be usefull to see which genes
+could be involved in trade-off phenotypes.</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"><B>Option 10: find genes expressed in a
+particular tissue</B></P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">Upon selecting this option, you will be
+presented with a list of tissues. The tissues are species specific,
+and the definition of the tissue is according to the UniGene
+database. You can select one or more tissues, in case you have more
+than one tissue separate tissue numbers with a space, and press
+enter. You will then be prompted for an expression level (10, 100 or
+1000 transcripts per million -TPM), and (in case you have selected
+multiple tissues) for a way how to combine tissues (AND, OR, NOT).
+The expression data is derived from EST-library sequencing studies,
+not from array data. The data can be explored manually by going to
+NCBI-UniGene-Expression profiles. 
+</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"><I>NOTE: I have encountered several
+problems by implementing the new option to search genes
+species-specifically. I am currently trying to solve these problems,
+but given all the ambiguities that arise from this, it is not an easy
+task. I have nevertheless opted to post the new version on the lx3,
+because Marko's project mandated he used the expression data.</I></P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">By invoking one of these options, one
+or more genes are retrieved and searched automatically for a number
+of features. Apart from output to the screen (unless the 'silent'
+option is invoked), you will also be presented with a number of
+reports. These reports are filed in the directory 'results' created
+created in the master directory that was created at the start of the
+search. (simultaneously two other subdirectories were created:
+errorlog and temp. These are only important for the program itself,
+and for debugging purposes).</P>
+<P STYLE="margin-bottom: 0in">	The results of the 'gensearch' can be
+found in the gensearch.txt and gensearch.htm files. These files
+contain identical information, in the .txt file presented as flat
+text, in the .htm in hyper text markup format which can be displayed
+by your web browser. (<I>NOTE: I have apparently managed to program
+exotic tags in my CGI scripts that MS Explorer can't display. Firefox
+works fine. Working on that</I>).</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"><FONT SIZE=4><B>SNP search</B></FONT></P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"> There are three more files in the
+'results' directory that hold information on the second part of the
+search: the search for SNP variation that is potentially of relevance
+with respect to phenotypic variation. The SNPreport.txt file is a
+flat text file containing only this information, and basically
+summarizes relevant information. The other two files, fullreport.txt
+and fullreport.html are identical in content but again different in
+markup (.txt is flat text file, .html can be viewed by your web
+browser). These 'fullreport' files shows (potentially) interesting
+information apart from the SNP variations.</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<OL>
+	<LI><P STYLE="margin-bottom: 0in">The list of genes (EnsEMBL Ids)
+	and how these genes were obtained</P>
+	<LI><P STYLE="margin-bottom: 0in">Next, information is listed for
+	each of the genes:</P>
+	<OL>
+		<LI><P STYLE="margin-bottom: 0in">EnsEMBL ID and species</P>
+		<LI><P STYLE="margin-bottom: 0in">homology type (redundant as
+		currently this is done in GenSearch). Currently, the pipeline takes
+		by default both only one-to-one relationships into account. A
+		one-to-many relationship will return multiple 'orthologs', which
+		the pipeline can not handle because this means there may multiple
+		and ambiguous answers to a procedure that expects a single straight
+		solution. I am currently working on an algorithm that could
+		mitigate this problem.</P>
+		<LI><P STYLE="margin-bottom: 0in">Description of the gene
+		(description as databased in EnsEMBL</P>
+		<LI><P STYLE="margin-bottom: 0in">External references (some
+		possibly relevant external refs as databased in EnsEMBL).</P>
+		<LI><P STYLE="margin-bottom: 0in">Position of the gene in the
+		selected species.</P>
+		<LI><P STYLE="margin-bottom: 0in">UniGene expression profile, as
+		well as expression information from the Human Protein Reference
+		Database (done by using human orthologues).</P>
+		<LI><P STYLE="margin-bottom: 0in">Any regulatory elements that are
+		annotated in EnsEMBL (currently only relevant for human genome, but
+		in the future more and more for other genomes).</P>
+		<LI><P STYLE="margin-bottom: 0in">The program FootPrinter is
+		implemented in the pipeline to look for conserved motifs in the
+		regions upstream of transcription start. FootPrinter does not look
+		at positional homologies, but rather looks for small (10 to 6 bp)
+		motifs that are occurring in multiple sequences. These motifs might
+		represent transcription factor binding sites (TFBS). To increase
+		the likelihood of finding relevant motifs, A 500bp upstream region
+		of your favorite animal is compared to orthologous upstream regions
+		of several other species (human, mouse, chicken, cattle, dog and
+		rat). These orthologous regions are derived from EnsEMBL database,
+		and a input file for FootPrinter is generated. FootPrinter output
+		is redirected to the pipeline, and relevant sites are displayed.
+		The pipeline automatically scans predicted TFBS for SNP information
+		based on variation in dbSNP. <I>(NOTE: the FootPrinter option is
+		currently broken, reason why is still a bit of a mystery).</I></P>
+		<LI><P STYLE="margin-bottom: 0in">A second method for TFBS
+		prediction is the implementation of the program Clover. Clover
+		searches a single sequence (a region upstream of transcription
+		start handed by the pipeline based on EnsEMBL annotation) for
+		overrepresented sequences and compares this to a library of known
+		TFBS motifs. Again, the pipeline will return relevant sites, and if
+		present will provide SNP variation present in the motif region.</P>
+		<LI><P STYLE="margin-bottom: 0in"> Finally all transcripts will be
+		returned for the gene, which is necesary to perform a number of
+		transcript-specific analyses. For each of the transcripts the
+		following will be carried out:</P>
+		<OL>
+			<LI><P STYLE="margin-bottom: 0in"> retrieval of 3'UTR information
+			(and sequence).</P>
+			<LI><P STYLE="margin-bottom: 0in">retrieval of predicted miRNA
+			binding sites from miRBase. In case a polymorphism is present in
+			the binding site, based on polymorphism data in dbSNP, this will
+			be returned as well.</P>
+			<LI><P STYLE="margin-bottom: 0in">If a 3'UTR is annotated in
+			EnsEMBL, the pipeline will do a de novo miRanda search for miRNA
+			binding sites, using miRNA library entries specific for your
+			favorite species. It will return variation information if
+			applicable. One issue remaining is that positional information is
+			sometimes not calculated accurately if the 3'UTR is coded by
+			multiple exons. Prediction of miRNA binding sites from this
+			analysis are probably very unreliable, and should therefore be
+			treated as such. 
+			</P>
+			<P STYLE="margin-bottom: 0in"></P>
+		</OL>
+	</OL>
+</OL>
+<P STYLE="margin-bottom: 0in"><FONT SIZE=4><B>Further command line
+options and tricks:</B></FONT></P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">-s  options: 'verbose' (standard) or
+'silent'. The silent option redirects the standard output to a
+separate file. This is necessary for job processing.</P>
+<P STYLE="margin-bottom: 0in">-m options: 'all' (default),
+'searchgenes' or 'getsnps'. Allows searching only for genes or snps.
+In the latter case you should have already prepared a text file
+containing parameters and ensembl gene ids.</P>
+<P STYLE="margin-bottom: 0in">-v shows the version of the toolbox</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">It is possible to post a job search.
+You should prepare a text file, e.g. Called parameter.txt, which
+contains the parameters as you would type them on the command line
+(including blank returns!). 
+</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">The way to invoke the toolbox would
+then be:</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">% KvL -s silent parameter.txt</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">You could for instance send this
+command to a job processing tool such as at.</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">There are additional command line
+options, such as for unlocking the PubMed limits, which are best not
+shared at this time. For specific needs, contact HJM. And remember,
+the major goal of the toolbox was to provide... tools. Specific
+research questions may need a specific set of tools, and the Toolbox
+is here in part to demonstrate what is currently feasible. Based on
+the modules that are currently available it is fairly easy to make a
+custom analysis pipeline. 
+</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"><FONT SIZE=4><B>References and
+websites:</B></FONT></P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"><FONT SIZE=3>NCBI:
+</FONT><A HREF="http://www.ncbi.nlm.nih.gov/"><FONT SIZE=3>http://www.ncbi.nlm.nih.gov</FONT></A></P>
+<P STYLE="margin-bottom: 0in"><FONT SIZE=3>EnsEMBL:
+</FONT><A HREF="http://www.ensembl.org/"><FONT SIZE=3>http://www.ensembl.org</FONT></A></P>
+<P STYLE="margin-bottom: 0in"><FONT SIZE=3>Gene Ontology (GO):
+http://www.geneontology.org/</FONT></P>
+<P STYLE="margin-bottom: 0in"><FONT SIZE=3>miRBase:
+http://microrna.sanger.ac.uk/</FONT></P>
+<P STYLE="margin-bottom: 0in"><FONT SIZE=3>Human Protein Reference
+Database: www.hprd.org/</FONT></P>
+<P STYLE="margin-bottom: 0in"><FONT SIZE=3>HUGO Gene Nomenclature
+Committee (HGNC) website: http://www.genenames.org/</FONT></P>
+<P STYLE="margin-bottom: 0in"><A CLASS="sdendnoteanc" NAME="sdendnote1anc" HREF="#sdendnote1sym"><SUP>i</SUP></A><A CLASS="sdendnoteanc" NAME="sdendnote2anc" HREF="#sdendnote2sym"><SUP>ii</SUP></A>⁠<A CLASS="sdendnoteanc" NAME="sdendnote3anc" HREF="#sdendnote3sym"><SUP>iii</SUP></A>⁠<A CLASS="sdendnoteanc" NAME="sdendnote4anc" HREF="#sdendnote4sym"><SUP>iv</SUP></A><A CLASS="sdendnoteanc" NAME="sdendnote5anc" HREF="#sdendnote5sym"><SUP>v</SUP></A>⁠⁠⁠⁠</P>
+<DIV ID="ZOTERO_BIBL" DIR="LTR">
+	<P STYLE="margin-left: 0.5in; text-indent: -0.5in; margin-bottom: 0in; line-height: 100%">
+	<FONT SIZE=3>Blanchette, Mathieu, and Martin Tompa. “FootPrinter:
+	A program designed for phylogenetic footprinting.” <I>Nucleic
+	acids research</I> 31, no. 13 (July 1, 2003): 3840-2.</FONT></P>
+	<P STYLE="margin-left: 0.5in; text-indent: -0.5in; margin-bottom: 0in; line-height: 100%">
+	<BR>
+	</P>
+	<P STYLE="margin-left: 0.5in; text-indent: -0.5in; margin-bottom: 0in; line-height: 100%">
+	<FONT SIZE=3>Enright, Anton J, Bino John, Ulrike Gaul, Thomas
+	Tuschl, Chris Sander, and Debora S Marks. “MicroRNA targets in
+	Drosophila.” <I>Genome biology</I> 5, no. 1 (2003): R1.</FONT></P>
+	<P STYLE="margin-left: 0.5in; text-indent: -0.5in; margin-bottom: 0in; line-height: 100%">
+	<BR>
+	</P>
+	<P STYLE="margin-left: 0.5in; text-indent: -0.5in; margin-bottom: 0in; line-height: 100%">
+	<FONT SIZE=3>Frith, Martin C, Yutao Fu, Liqun Yu, Jiang-Fan Chen,
+	Ulla Hansen, and Zhiping Weng. “Detection of functional DNA motifs
+	via statistical over-representation.” <I>Nucleic acids research</I>
+	32, no. 4 (2004): 1372-81.</FONT></P>
+	<P STYLE="margin-left: 0.5in; text-indent: -0.5in; margin-bottom: 0in; line-height: 100%">
+	<BR>
+	</P>
+	<P STYLE="margin-left: 0.5in; text-indent: -0.5in; margin-bottom: 0in; line-height: 100%">
+	<FONT SIZE=3>Griffiths-Jones, Sam, Russell J Grocock, Stijn van
+	Dongen, Alex Bateman, and Anton J Enright. “miRBase: microRNA
+	sequences, targets and gene nomenclature.” <I>Nucleic acids
+	research</I> 34, no. Database issue (January 1, 2006): D140-4.</FONT></P>
+	<P STYLE="margin-left: 0.5in; text-indent: -0.5in; margin-bottom: 0in; line-height: 100%">
+	<BR>
+	</P>
+	<P STYLE="margin-left: 0.5in; text-indent: -0.5in; margin-bottom: 0in; line-height: 100%">
+	<FONT SIZE=3>Mazi&egrave;re, Pierre, and Anton J Enright.
+	“Prediction of microRNA targets.” <I>Drug discovery today</I>
+	12, no. 11-12 (June 2007): 452-8.</FONT></P>
+</DIV>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<DIV ID="sdendnote1">
+	<P CLASS="sdendnote"><A CLASS="sdendnotesym" NAME="sdendnote1sym" HREF="#sdendnote1anc">i</A>Mathieu
+	Blanchette and Martin Tompa, “FootPrinter: A program designed for
+	phylogenetic footprinting,” <I>Nucleic acids research</I> 31, no.
+	13 (July 1, 2003): 3840-2</P>
+</DIV>
+<DIV ID="sdendnote2">
+	<P CLASS="sdendnote"><A CLASS="sdendnotesym" NAME="sdendnote2sym" HREF="#sdendnote2anc">ii</A>Sam
+	Griffiths-Jones et al., “miRBase: microRNA sequences, targets and
+	gene nomenclature,” <I>Nucleic acids research</I> 34, no. Database
+	issue (January 1, 2006): D140-4</P>
+</DIV>
+<DIV ID="sdendnote3">
+	<P CLASS="sdendnote"><A CLASS="sdendnotesym" NAME="sdendnote3sym" HREF="#sdendnote3anc">iii</A>Martin
+	C Frith et al., “Detection of functional DNA motifs via
+	statistical over-representation,” <I>Nucleic acids research</I>
+	32, no. 4 (2004): 1372-81</P>
+</DIV>
+<DIV ID="sdendnote4">
+	<P CLASS="sdendnote"><A CLASS="sdendnotesym" NAME="sdendnote4sym" HREF="#sdendnote4anc">iv</A>Anton
+	J Enright et al., “MicroRNA targets in Drosophila,” <I>Genome
+	biology</I> 5, no. 1 (2003): R1</P>
+</DIV>
+<DIV ID="sdendnote5">
+	<P CLASS="sdendnote"><A CLASS="sdendnotesym" NAME="sdendnote5sym" HREF="#sdendnote5anc">v</A>Pierre
+	Mazi&egrave;re and Anton J Enright, “Prediction of microRNA
+	targets,” <I>Drug discovery today</I> 12, no. 11-12 (June 2007):
+	452-8</P>
+</DIV>
+</BODY>
+</HTML>

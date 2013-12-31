@@ -1,0 +1,812 @@
+//START
+(
+ //EUBACTERIA
+ (
+  AQUIFEX*,
+  (
+   THERMOTOGA*,
+   DEINOCOCCUS*,
+   (
+    (
+     (
+      //BACILLUS
+      (
+       BACILLUS
+      ),
+      //MYCOPLASMA
+      (
+       MYCOPLASMA_PNEUMONIAE,
+       MYCOPLASMA_GENITALIUM
+      )
+     ),
+     //ACTINOBACTERIA
+     (
+      MYCOBACTERIUM*
+     )
+    ),
+    (
+     SYNECHOCYSTIS*,
+     (
+      (
+       //SPIROCHAETALES
+       (
+        //SPIROCHAETACEAE
+        TREPONEMA*,
+        BORRELIA*
+       ),
+       (
+        //CHLAMYDIA
+        CHLAMYDIA*
+       )
+      ),
+      (
+       (
+        //ALPHA
+        RICKETTSIA*
+       ),
+       (
+        //GAMMA
+        (
+         //ESCHERICHIA
+         ESCHERICHIA*,
+         BUCHNERA*
+        ),
+        PSEUDOMONAS*,
+        VIBRIO*,
+        HAEMOPHILUS*,
+        XYLELLA*
+       ),
+       (
+        //BETA
+        NEISSERIA*
+       ),
+       (
+        //EPSILON
+        HELICOBACTER*,
+        CAMPYLOBACTER*
+       )
+      )
+     )
+    )
+   )
+  )
+ ),  // END OF EUBACTERIA
+ //ARCHEA+EUKARYA
+ (	
+  //ARCHEA
+  (
+   (
+    DESULFUROCOCCUS,
+    SULFOLOBUS
+   ),
+   (
+    (
+     //PYROCOCCUS
+     (
+      PYROCOCCUS*
+     ),
+     AEROPYRUM*
+    ),
+    (
+     METHANOBACTERIUM*,
+     (
+      METHANOCOCCUS*,
+      (
+       ARCHAEOGLOBUS*,
+       (
+        THERMOPLASMA*1,
+        HALOBACTERIUM*
+       )
+      )
+     )
+    )
+   )
+  ),  // END OF ARCHEA  
+  //EUKARYA
+  (
+  //PROTISTA+PLANT  (DUBIOUS)
+   (
+    (
+     GIARDIA,
+     ENTAMOEBA
+    ),
+    //PLANTS
+    (
+     HUMULUS,
+     ORYZA
+    )
+   ),  // END OF PROTISTA+ PLANTS
+   //FUNGI+ANIMALS
+   (
+    //FUNGI
+    (
+     VERTICILLIUM,
+     SACCHAROMYCES
+    ), // END OF FUNGI
+    //METAZOAN
+    (
+     //SPONGES
+     EPHYDATIA*,
+     HYDRA*,
+     LYMNAEA*, //SNAIL
+     //ARTHROPODA
+     (
+      (
+       IXODES*,
+       CALPODES*, 
+       ORNITHODOROS
+      )
+      ,
+      //INSECTA
+      (       
+       //LEPIDOPTERA
+       (  
+        GALLERIA*,
+        MANDUCA*,
+        (
+         // BOMBYCOIDEA
+         (
+          BOMBYX_MANDARINA,
+          BOMBYX_MORI,
+          HYALOPHORA*
+         ),
+         (
+          ANTHERAEA_PERNYI,
+          ANTHERAEA_YAMAMAI
+         )
+        )
+       ),
+       NILAPARVATA*,
+       //DIPTERA
+       (
+	MUSCA,
+        MOSQUITO,
+        (
+         (DROSOPHILA_MELANOGAS*,
+          DROSOPHILA_SIMULANS),
+         DROSOPHILA_VIRILIS,
+         DROSOPHILA
+        ),     
+        //NEMATOCERA
+        (
+         //CULICOIDEA
+         (
+          AEDES*,
+          CULEX*,
+          ANOPHELES*
+         ),
+         //SCIAROIDEA
+         (
+          RHYNCHOSCIARA*,
+          CHIRONOMUS*
+         )
+        )
+       )
+      ),
+      TIGRIOPUS*,
+      DAPHNIA*,
+      PACIFASTACUS*
+     ),
+     //VERTEBRATE+CELEGANS
+     (
+      CAENORHABDITIS*,
+      //DEUTEROSTOMA
+      (
+       //ECHINODERMS
+       ( 
+        //ELEUTHEROZOA
+        (
+         LYTECHINUS*,
+         //ECHINIDAE
+         (
+          PARACENTROTUS*,
+          PSAMMECHINUS*
+         )
+        ),
+        //ASTEROZOA
+        (
+         PYCNOPODIA*,
+         PISASTER*
+        )
+       ),
+      //VERTEBRATES
+      (
+	CIONA_INTESTINALIS,
+       //HYPEROARTIA
+       (
+        (PETROMYZON,LAMPREY)
+       ),
+       //GNATHOSTOMATA
+       (
+        //CHONDRICHTHYES
+        (SCYLIORHINUS*,
+	TORPEDO*
+        ),
+        //EUTELEOSTOMI
+        (
+        //ACTINOPTERGYII
+        (
+          //NEOPTERYGII
+          ( 
+           // AMIIFORMES
+           (
+            AMIA_CALVA
+           ),
+           // TELEOSTEI
+           (
+            //CLUPEOCEPHALA 
+	    (
+	    //OSTARIOPHYSI
+             (
+              //SILURIFORMES
+              (
+               (CATFISH,ICTALURUS*),
+              HETEROPNEUSTES*  ,
+              (PANGASIANODON*,PANGASIUS*)
+             ), // END OF SILURIFORMES
+             //CYPRINIPHYSI 
+	     (
+               //COBITOIDEA 
+              (
+	        MISGURNUS*,
+	        BARBATULA*
+              ),// END OF COBITOIDEA 
+            
+            //CYPRINIDAE
+            (
+             (MEGALOBRAMA_AMBLY*,MEGALOBRAMA_TERMIN*),
+             (ZEBRAFISH,DANIO*),
+             ABRAMIS*,
+             (HYPOPHTHALMICHTHYS_M*,  HYPOPHTHALMICHTHYS_N*) ,
+	     //CYPRININAE 
+             (
+               BARBUS*,
+               MYLOPHARYNGODON*,
+               (CIRRHINUS_MOLITOR*,CIRRHINUS_MRIGALA*),
+               CATLA*,             
+               (COMMONCARP,CYPRINUS*),
+               (GRASSCARP,CTENOPHARYNGODON*),
+               LABEO*,
+              (GOLDFISH,CARASSIUS_AURATUS,CARASSIUS_CUVIERI)
+	     ) // END OF CYPRININAE 
+            ) // END OF CYPRINIDAE 
+           ) // END OF CYPRINIPHYSI 
+          ), // END OF OSTARIOPHYSI
+
+	//EUTELEOSTEI
+            (
+// NEOGNATHI 
+(
+//PERCOMORPHA
+          (
+           //PLEURONECTIFORMES
+           (
+            //PLEURONECTOIDEI
+            (
+             PLATICHTHYS*,
+		VERASPER*,
+             PARALICHTHYS*,
+             HIPPOGLOSSUS*
+            ), // END OF PLEURONECTOIDEI
+            SOLEA*
+           ), //PLEURONECTIFORMES
+           POECILIA*,
+          //PERCIFORMES
+           (
+            //PERCOIDEI
+            (
+             PSEUDOSCIAENA*,
+             CARANX*,
+             EPINEPHELUS*,
+             //MORONIDAE
+             (
+              MORONE*,
+              DICENTRARCHUS*,
+              LATEOLABRAX*
+             ), // END OF MORONIDAE
+             (SERIOLA_DUMER*,SERIOLA_QUIN*),
+             LATES*,
+             PERCA*,
+             // SPARIDAE
+             (
+              GILTHEADSEABREAM,
+              SPARUS*,
+              PAGRUS*,
+              ACANTHOPAGRUS*)
+            ),
+            TRICHOGASTER*,
+            (TILAPIA*,(OREOCHROMIS_MOSSAMBI*,OREOCHROMIS_NILOTI*)),           		CALLIONYMUS*,// 
+	    NOTOTHENIOIDEI,
+            (
+             
+             CHIONODRACO*,
+             (
+              NOTOTHENIA_ANGUSTATA,
+              NOTOTHENIA_CORIICEPS
+             ) 
+            )// END OF NOTOTHENIOIDEI
+           ), // END OF PERCIFORMES
+           //SCORPAENIFORMES
+           (
+            // COTTIDAE
+	    (
+              MYOXOCEPHALUS*,
+            COTTUS_KAZIKA*
+            ),// END OF COTTIDAE
+              // SCORPAENOIDEI 
+            (
+             SEBASTES*,
+             SEBASTISCUS*
+            ) // END OF SCORPAENOIDEI 
+           ), // END OF SCORPAENIFORMES
+           SIGANUS*,
+	   //TETRAODONTIFORMES
+           (
+            (FUGU,TAKIFUGU*),
+            TETRAODON*,
+            AROTHRON*	    	
+           ), //END OF TETRAODONTIFORMES
+           (MEDAKA*,ORYZIAS*)
+          ) // END OF PERCOMORPHA
+         ), // END OF NEOGNATHI 
+         // PROTACANTHOPTERYGII 
+         (
+           // SALMONIFORMES       
+           (
+            (
+             SALMO*,
+             (TROUT,ONCORHYNCHUS_MYKISS*,ONCORHYNCHUS_SP*,ONCORHYNCHUS_GORBU*,ONCORHYNCHUS_KETA*,ONCORHYNCHUS_KISU*,ONCORHYNCHUS_MASOU*,ONCORHYNCHUS_TSHAWY*)
+            ),
+            COREGONUS*
+           ) // END OF SALMONIFORMES
+         ) // END OF PROTACANTHOPTERYGII 
+         ) // END OF EUTELEOSTEI
+         ), // END OF CLUPEOCEPHALA 
+         ANGUILLA*
+), //END OF TELEOSTEI
+          LEPISOSTEUS*
+	           ) // END NEOPTERYGII
+        ), // END OF ACTINOPTERGYII
+        //SACROPTERGYII
+        (
+         PROTOPTERUS*,
+        //TRETAPODA
+        (
+         //AMPHIBIANS
+         (
+          (
+          ((FROG,XENOPUS*),SILURANA*, RANA_CATESBEIANA*),
+          BUFO_MARINUS*
+          ),
+         CYNOPS*
+         ),
+         //AMNIOTA
+         (
+          DABOIA,	
+	  // BIRDS
+          (
+	   (SERINUS*,CANARY),
+           (
+            (TURKEY, MELEAGRIS*),
+	    (CHICKEN*,GALLUS*)
+           ),
+           (
+            (DUCK,ANAS*,CAIRINA*),
+            (GOOSE,ANSER*)
+           )
+          ),
+          //MAMMALS
+          (
+           //MONOTREMA
+           (
+            MONOTREMA*,
+	    ORNITHORHYNCHUS*
+           ),
+           // MARSUPALIA + EUTHERIA
+           (
+            //MARSUPIALS
+            (
+             //DIPRODONTIA
+             (
+              POTOROUS*,
+              MACROPUS*,
+              VOMBATUS* 
+             ),
+             //DASYUROMORPHIA
+             (
+              PHASCOGALE*
+             ),
+             // PERAMELEMORPHIA
+             (
+              ECHYMIPERA*
+             ),
+             //PAUCITUBERCULATA
+             (
+              POSUM,
+              CAENOLESTES*             
+             ), // END OF PAUCITUBERCULATA
+             // DIDELPHIMORPHIA
+             (
+              DIDELPHIS*,
+              MONODELPHIS*,
+              LUTREOLINA*
+             )
+            ), // END OF MARSUPALIA
+            //EUTHERIA
+            (
+	     // EDENTEA+PHOIDOTA
+             (
+              // EDENTEA
+              (
+               BRADYPUS*,
+               TAMANDUA*,
+               MYRMECOPHAGA*,
+               (CHOLOEPUS_DIDACTYLUS*,CHOLOEPUS_HOFFMANNI*),
+               // DASYPODIDAE
+               (
+                EUPHRACTUS*,
+                CHAETOPHRACTUS*,
+                DASYPUS*               
+               ) // END OF DASYPODIDAE
+              ), // END OF EDENTEA
+             MANIS*
+             ), // END OF EDENTEA+PHOIDOTA,
+             //THE REST OF THE MAMMALS
+             (
+              // PRIMATES + RODENTS
+              (
+		               // PRIMATES + BATS             
+               (
+                //PRIMATES+SHREWS
+                (
+                 //SHREWS
+                 (
+                  TUPAIA*,SHREW
+                 ),
+                 //PRIMATES
+                 (
+                  //STREPSIRHINI
+                  (
+                   NYCTICEBUS*,
+                   //LEMURIDAE
+                   (
+                    LEMUR_CATTA*,
+                    EULEMUR*,
+                    VARECIA*
+                   ),
+                   //GALAGONIDAE
+                   (
+                    GALAGO*,
+                    OTOLEMUR*
+                   ),
+                   //INDRIDAE
+                   (
+                    PROPITHECUS*
+                   ),
+                   CHEIROGALEUS*
+                  ),
+                  
+                  // MONKEYS+TARSII   
+                  (            
+                   (TARSIUS_BANCANUS*,TARSIUS_SYRICHTA*),
+                   // MONKEYS 
+                   (
+                    //PLATYRRHINI
+                    (
+                     //CEBIBAE
+                     (
+                      ALOUATTA*,
+                      //PITHECIINAE
+                      (
+                       CACAJO*,
+                       PITHECIA*
+                      ), //END PITHECIINAE
+                      CALLICEBUS*,
+                      AOTUS*,
+                      (
+                       ATELES_BELZEBUTH*,
+                       ATELES_GEOFFROYI*,
+                       ATELES_FUSCICEPS*
+                      ),
+                      //CEBINAE
+                      (
+                        (CEBUS*,CAPUCHIN),
+                        (SQUIRRELMONKEY,SAIMIRI*)
+                      ) // END OF CEBINAE
+                     ), //END CEBIBAE
+                     //CALLITRICHIDAE
+                     (
+                      CALLIMICO*,
+                      (CALLITHRIX*,MARMOSET)
+                     ) // CALLITRICHIDAE
+                    ), // END OF PLATYRRHINI
+                    //CATARRHINI 
+                    (
+                     (HYLOBATES*,GIBBON),
+                     // CERCOPITHECIDAE
+                     (
+                      COLOBUS*,
+                      (CERCOPITHECUS_AETHI*,CERCOPITHECUS_HAM*),
+                      CERCOCEBUS*,
+                      (BABOON,PAPIO*),
+                      (RHESUS,(MACACA_FASCI*,MACACA_MULAT*))
+                     ), // END OF CERCOPUTHECIDAE,
+                     // HOMINIDAE
+                     (
+                      (PONGO*,ORANGUTAN),
+                      (
+                       GORILLA*,
+                       (
+                        (CHIMP,PAN_PANISCUS,PAN_TROGLO*),
+                        (HUMAN,HOMO*)
+                       )
+                      )
+                     ) // END OF HOMINIDAE
+                    ) // END OF CATARRHINI 
+                   ) // END OF MONKEYS
+                  )  // END OF MONKEYS+TARSII
+                 ) // END OF PRIMATES
+                ), // END OF PRIMATES+SHREWS
+               
+                //BATS+DERMOPTERA
+                (
+                 //DERMOPTERA
+                 (
+                  CYNOCEPHALUS*
+                 ),
+                 //BATS
+                 (
+                  // MEGACHIROPTERA
+                  (
+                   ROUSETTUS*,
+                   CYNOPTERUS*,
+                   PTEROPUS*,
+                   NYCTIMENE*
+                  ), // END OF MEGACHIROPTERA
+                  // MICROPTERA
+                  (
+                   //EMBALLONURIDAE 
+                   (
+                    EMBALLONURA*,
+                    TAPHOZOUS*
+                   ),
+                   //VESPERTILIONIDAE
+                   ( 
+                    MYOTIS*,
+                    ANTROZOUS*
+                   ), // END OF VESPERTILIONIDAE
+                   MEGADERMA*,
+                   HIPPOSIDEROS*,
+                   // PHYLLOSTOMIDAE
+	           (
+                    ARTIBEUS*,
+                     DESMODUS*,
+                    TONATIA*
+                   ),
+                   NATALUS*,
+                   NOCTILIO*,
+                   (NYCTERIS_GRANDIS,NYCTERIS_THEBAICA),
+                   RHINOLOPHUS*,
+                   RHINOPOMA*,
+                   RHOGEESSA*,
+                   TADARIDA*
+                  ) // END OF MICROPTERA
+                 ) // END OF BATS
+                ) // END OF BATS+DERMOPTERA
+               ), // END OF PRIMATES +BATS
+               
+               //RODENT+RABBIT+SHREWS
+               (
+                //MACROSCELIDEA
+                (
+                 MACROSCELIDES*,
+                 ELEPHANTULUS*,
+                 RHYNCHOCYON*
+                ),
+                //GLIRES
+                (
+                 //LAGOMORPHA
+                 (
+                  (
+                   RABBIT,
+                   LEPUS*,
+                   ORYCTOLAGUS*,
+                   SYLVILAGUS*
+                  ),
+                  (PIKA*,OCHOTONA*)
+                 ), // END OF LAGOMORPHA
+                 //RODENTIA
+                 (
+                  //SCIUROGNATHI
+                  (
+                   MUSCARDINUS*,
+                   DIPODOMYS*,
+                   //SCIUROMORPHA+BEAVER
+                   (                  
+                    APLODONTIA*,
+                    CASTOR*,
+                    //SCIURIDAE
+                    (
+                     TAMIAS*,
+                     SCIURUS*,
+                     GLAUCOMYS*,
+                     MARMOT*
+                    )
+                   ), // END SCIUROMORPHA+BEAVER
+                   GRAPHIURUS*,                 
+                   PEDETES*, 
+                   COTTONRAT,
+                   //MURIDAE                
+                   (
+                    // SIGMODONTINAE
+                    (
+                     ORYZOMYS*,
+                     AKODON*
+                    ),
+                    //MURINAE
+                    (
+                     (RAT,RATTUS_NORV*,RATTUS_SP*),
+                     (MOUSE,MUS_MUSCULUS,MUS_SPRETUS)
+                    ),//END MURINAE
+                    // CRICETINAE
+                    (
+                     MESOCRICETUS*,
+                     (HAMSTER,CRICETULUS_LONGI*, CRICETULUS_SP*,CRICETULUS_GRISEUS)
+                    ), // END CRICETINAE
+                    MERIONES*,
+                    NANNOSPALAX*
+                   ) // END MURIDAE
+                  ), // END SCIUROGNATHI
+                  //HYSTRICOGNATHI
+		  (
+                   HYDROCHAERIS*,
+                   AGOUTI*,
+                   ERETHIZON*,
+                   HETEROCEPHALUS*,
+                   DINOMYS*,
+                   (PORCUPINE,HYSTRIX*),
+                   (CAVIA*,GUINEAPIG)
+                  ) // END OF   HYSTRICOGNATHI  
+                 ) // END OF RODENTIA            
+                ) // END OF GLIRES
+               ) // END OF RODENTS+RABBITS+SCHREWS
+              ), // END OF PRIMATES+BATS+RODENTS
+ 	       // INSECTIVORA
+               (
+                // TENRECIDAE
+                (
+                 TENREC*,
+                 ECHINOPS*
+                ),
+                TALPA*,
+                SCALOPUS*,
+                ERINACEUS*,               
+                AMBLYSOMUS*, 
+                SOREX*,
+                CONDYLURA*
+               ),// END OF INSECTIVORA,
+               // DACTYLA+CARNIVORA
+               (
+                //CARNIVORA
+                (
+                 URSUS*,
+                 (SEAL, HALICHOERUS*),
+                 //FISSIPEDIA
+                 (
+                  MUSTELA*, 
+                  (
+                   (CAT,FELIS*),
+                   (LEOPARDUS*,PANTHERA*)
+                  ),
+                  (CANIS*,DOG)
+                 )
+                ),
+                //DACTYLTHINGS
+                (
+                ORYCTEROPUS*,
+                //ARTIODACTYLA+CETACEA
+                 (
+                  // ARTIODACTYLA
+                  (
+                   //TYLOPODA
+                   (
+                    (CAMELUS*,STRUTHIO*),
+                    LAMA*
+                   ), // END OF TYLOPODA
+                   // SUIFORMES
+                   (
+	            (PIG,SUS*), 
+                    HIPPOPOTAMUS*
+                   ), // END OF SUIFORMES
+                   //RUMINANTIA 
+	  	   (
+                    // BOVOIDEA
+                    (
+                     // BOVINAE
+                     (
+                      TRAGELAPHUS*,
+                      (BOS_TAURUS,BOVIN,COW),
+                      BOS_INDICUS,                      
+                      BOS_GRUNNIENS,                     
+                      BUBALUS*
+                     ), // END OF BOVINAE,
+                     // CAPRINAE
+		     (
+                      (OVIS*,SHEEP),
+                      (GOAT,CAPRA_HIRCUS,CAPRA_CAPRA)
+                     ), // END OF CAPRINAE
+                     GAZELLA*
+                    ), // END OF BOVOIDEA
+                    (DEER,CERVUS*),
+                    TRAGULUS*,
+                    OKAPIA*
+                   ) // END OF RUMINATIA
+                  ), // END OF ARTIODACTYLA
+                  //CETACEA
+                  (
+                   (
+                    (DOLPHIN, TURSIOPS*,SOTALIA*,DELPHINUS*, DELPHINAPTERUS*),
+                    (
+                     (SPERMWHALE,PHYSETER*),
+                     (BLUEWHALE,(MEGAPTERA_LYRA*,MEGAPTERA_NOVA*))
+                    )
+                   )
+                  ) // END OF CETACEA
+                 ), // END OF ARTIODACTYLA+CETACEA
+                 //PERISSODACTYLA	 +PROBOSCIDEA+SIRENIA             
+                 (
+                  //PERISSODACTYLA
+ 	          (
+                   TAPIRUS*,
+                   (RHINOCEROS,DICEROS*,CERATOTHERIUM*),
+                   (	
+                    (	
+		     EQUIDAE,
+                     HORSE,
+                     EQUUS_ASINUS,
+                     EQUUS_CABALLUS
+                    )
+                   )
+                  ), // END OF PERISSODACTYLA
+                  // HYRACOIDEA + SIRENIA + PROBOSCIDEA
+                  (
+                   // HYRACOIDEA
+                   (
+                    DENDROHYDRAX*,
+                    PROCAVIA*
+                   ),
+                   // SIRENIA + PROBOSCIDEA
+                   (
+                    // PROBOSCIDEA
+                    (
+                     LOXODONTA*,
+                     ELEPHAS*
+                    ),
+                    // SIRENIA
+                    (
+                     DUGONG*,
+                     TRICHECHUS*
+                    ) // END OF SIRENIA
+                   ) // END OF SIRENIA + PROBOSCIDEA
+                  ) // END OF HYRACOIDEA + SIRENIA + PROBOSCIDEA
+       	         ) // END OF PERISSODACTYLA	 +PROBOSCIDEA+SIRENIA  
+	        ) // END OF DACTYLTHINGS
+               ) // END OF DACTYLA+CARNIVORA
+              ) // END OF THE REST OF THE MAMMALS
+             ) // END OF EUTHERIA
+            ) // END OF MARSUPIALA+EUTHERIA
+           ) // END OF MAMMALS
+          ) // END OF AMNIOTA
+         ) // END OF TETRAPODA
+        ) // END OF SACROPTERGYII
+        ) // END OF EUTELOSTOMI
+        ) // END OF GNATHOSTOMA
+       ) // END OF VERTEBRATES
+      ) // END OF DEUTEROSTOMA
+     ) // END OF VERTEBRATES+CELEGANS
+    ) // END OF METAZOAN
+   ) // END OF FUNGI+ANIMALS
+  ) // END OF EUKARYA
+ ) // END OF ARCHEA+EUKARYA
+) // END OF ALL
+

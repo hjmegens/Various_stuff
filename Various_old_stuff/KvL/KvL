@@ -1,0 +1,1288 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+#################
+# Perl modules
+#################
+use lib "/usr/local/lib/kvl_lib/EnsEMBL48/ensembl/modules/";
+use lib "/usr/local/lib/kvl_lib/EnsEMBL48/ensembl-variation/modules/";
+use lib "/usr/local/lib/kvl_lib/EnsEMBL48/ensembl-compara/modules/";
+use lib "/usr/local/lib/kvl_lib/EnsEMBL48/bioperl-live/";
+use Data::Dumper;
+use LWP::Simple;
+use File::stat;
+use DBI;
+use File::Temp qw/ tempfile tempdir /;
+use Getopt::Std;
+my %opts = ();
+
+print '@INC: '.join("\n",@INC)."\n";
+# some defaults which can be overrules by commandline options
+$opts{s}='verbose';
+$opts{v}=1;
+$opts{m}='all';
+$opts{u}='locked';
+$opts{f}= 0;
+$opts{r}='noremoteuser';
+
+#grab comandline options
+getopt('crtsvmufl', \%opts);
+my $gofiltering = $opts{f};
+my $remote_user = $opts{r};
+my $tempdir = $opts{t};
+my $running_mode = $opts{s};
+my $modus = $opts{m};
+my $comment = $opts{c};
+my $genlistfilter_conditional = $opts{l}; #should be 'and','or','not'
+#print "running mode: '$running_mode'\n";
+if ($modus eq 'a'){
+	$modus = 'searchgenes';
+}
+if ($modus eq 'b'){
+	$modus = 'getsnps';
+}
+#print "modus: $modus";	
+#################
+# EnsEMBL modules
+#################
+
+use Bio::EnsEMBL::Registry;
+use Bio::EnsEMBL::DBSQL::DBAdaptor;
+
+#################
+# Bioperl modules
+#################
+
+use Bio::AlignIO;
+use Bio::SearchIO;
+
+#################
+# KvL modules
+#################
+
+use lib "/usr/local/lib/kvl_lib/KvL";
+#use lib "KvL";
+use Fetch_Ortholog;
+use Gene_Attributes;
+use Ask;
+use Snps;
+use Mirna;
+use Comparebyblast;
+use FootPrinterPerl;
+use CloverPerl;
+use GeneNetworks;
+use MyGO;
+use PubMed;
+use Expression;
+use R_BioC;
+
+##############################
+# Check if necessary subdirs are
+# already present; if not, make
+# open error log
+##############################
+#############################
+# start intro
+#############################
+unless ($opts{v}){
+	Ask::intro;
+	exit;
+}
+unless ($running_mode eq 'silent'){
+	system 'clear';
+}
+
+unless ($tempdir){
+	$tempdir = tempdir('kvltempXXXXXXXX');
+}
+
+unless ($tempdir) {
+	$tempdir = 'temp';
+}
+my $dir =stat("$tempdir/");
+unless ($dir){
+	mkdir "$tempdir", 0755 or warn "cannot make directory errorlog: $!\n";
+}
+
+$dir =stat("$tempdir/errorlog/");
+unless ($dir){
+	mkdir "$tempdir/errorlog", 0755 or warn "cannot make directory errorlog: $!\n";
+}
+
+open(STDERR, ">$tempdir/errorlog/myprogram.error") or die "cannot open error file: myprogram.error:$!\n";
+
+$dir =stat("$tempdir/temp/");
+unless ($dir){
+	mkdir "$tempdir/temp", 0755 or warn "cannot make directory temp: $!\n";
+}
+$dir =stat("$tempdir/results/");
+unless ($dir){
+	mkdir "$tempdir/results", 0755 or warn "cannot make directory results: $!\n";
+}
+if ($running_mode eq 'silent'){
+	open STDOUT, ">$tempdir/temp/tmp";
+	print "\n\nRun starts at " . scalar (localtime) ."\n\n";
+}
+Ask::intro;
+
+##############################
+# Ensemble configuration file
+# ############################
+
+#my $reg_conf = "/home/bioroot/bin/kvl_lib/ensembl_init_new";
+my $reg_conf = "/usr/local/lib/kvl_lib/ensembl_init_new";
+Bio::EnsEMBL::Registry->load_all($reg_conf);
+
+######################## part 1: get genes #########################
+
+unless ($modus eq 'getsnps'){
+	my @genes = ();
+	my $species = '';
+	my $what = '';
+	my $refspecies = 'human';
+	my $tissuefiltering = 'tissuefiltering=no';
+
+	my $fh;
+	my $fhht;
+
+	open($fh, ">$tempdir/results/gensearch.txt");
+	open($fhht, ">$tempdir/results/gensearch.html");
+	#open BT, ">$tempdir/results/bt-mirnas.txt";
+	print $fhht '<html><head><title>'.$species.$what.$tempdir.'</head><body><strong>GenSearch Output '.$species.$what.$tempdir.'</strong><br>'."\n";
+	##############################
+	#Asks for the query species
+	##############################
+
+	$species = Ask::species('chicken','cattle','pig','human','house mouse','dog','zebrafish');
+
+	##############################
+	#asks for the query type
+	##############################
+
+	$what = Ask::what('Single Hugo gene name','QTL region', 'GO term','Pubmed search', 'OMIM search','list from textfile','EnsEMBL stable gene id', 'Gene Network Neighborhood', 'Intersecting Networks','Gene Expression');
+	
+	##############################
+	# initialize/read filtering data
+	##############################
+
+	##############################
+	# expression filtering parameters
+	##############################
+	unless ($what eq 'gene' || $what eq 'express'){
+		if ($running_mode eq 'silent'){
+			$tissuefiltering = <>;
+			chomp $tissuefiltering;
+		}
+		else {
+			$tissuefiltering = Ask::tissuefiltering($species);
+			unless ($running_mode eq 'silent'){
+				$gofiltering = Ask::ask_go_filtering();
+			}
+		}
+	}
+	if ($what eq 'gene' || $what eq 'express'){
+		$tissuefiltering = 'tissuefiltering=no';
+	}
+	
+	###################
+	# upload filterlist if requested
+	###################
+	my @filterlist;
+	if ($opts{l}){
+		$genlistfilter_conditional = uc $genlistfilter_conditional;
+		my $listfilename;
+		if ($opts{t}){
+			$listfilename = $opts{t};
+			$listfilename =~ s/kvltemp\/kvltemp/kvltemp\/filterlist/;
+			$listfilename = $listfilename.'.txt';
+			print "filename: $listfilename\n"
+		}
+		else {
+			$listfilename = 'filterlist.txt';
+		}
+		open (FILTER,"$listfilename") or warn "can not open $listfilename $!\n";
+		while (<FILTER>){
+			my $filtergene = $_;
+			chomp $filtergene;
+			$filtergene = uc $filtergene;
+			print $filtergene."\n";
+			if(Ask::check_ensemblgeneid($filtergene,$species)){ 
+				push(@filterlist,$filtergene);
+			}
+		}
+		@filterlist = Expression::unique_array_elements(@filterlist);
+		close(FILTER);
+		print "\n\n--------------\nyou have uploaded ".scalar(@filterlist)." valid genes from a filterlist\n------------\n\n";
+		print $fh "\n\n--------------\nyou have uploaded ".scalar(@filterlist)." valid genes from a filterlist\n------------\n\n";
+		print $fhht "<br><strong>you have uploaded ".scalar(@filterlist)." valid genes from a filterlist</strong><br>\n";
+		
+		
+	}
+
+	#############################
+	#open outputfiles, and log summary data
+	#############################
+	my($pwname)=getpwuid($<);
+	print $fh "Run starts at " . scalar (localtime) ."\n\n";
+	print $fhht "Run starts at " . scalar (localtime) ."<br>remote user: $remote_user local user: $pwname<hr>\n\n";
+
+	
+	#open(SENDMAIL, "|/usr/sbin/sendmail -t") or die "Cannot open sendmail: $!"; 
+	#print SENDMAIL 'Reply-to: hendrik-jan.megens@wur.nl'."\n"; 
+	#print SENDMAIL "Subject: $tempdir submitted by $remote_user\n"; 
+	#print SENDMAIL 'To: hjm@localhost'."\n"; 
+	#print SENDMAIL "Content-type: text/plain\n\n"; 
+	#print SENDMAIL "GenSearch: $what for $species\ntempdir: $tempdir\ntime: ".scalar(localtime)."\nremote user: $remote_user\nlocal user: $pwname\nPID: $$\n"; 
+	#close(SENDMAIL); 
+	if ($pwname eq 'apache'){
+		open(KVLLOG, ">>/var/tmp/kvllog.txt") or warn "Cannot open kvllogfile: $!"; 
+		print KVLLOG "PID: $$\tstart time: ".scalar(localtime)."\tremote user: $remote_user\tlocal user: $pwname\tGenSearch: $what for $species\ttempdir: $tempdir\n"; 
+		close(KVLLOG); 
+	}
+
+	# mail: process ID: $$ - user id: $> $remote_user
+	##############################
+	#retrieve genes according to query type, they are store in array @genes
+	##############################
+
+	do {
+		if ($what eq 'gene'){
+			my $intgenes;
+			($intgenes, $refspecies) = Ask::gene('IGF1', $fh,$fhht, $species);
+			@genes = @$intgenes;
+		}
+		if ($what eq 'qtl'){
+			$refspecies = $species;
+			@genes = Ask::region('1', '56000000', '59000000', $species, $fh,$fhht);
+		}
+		if ($what eq 'go'){
+
+			#$refspecies = $species;
+			@genes = Ask::go('GO:0040007','growth', $fh,$fhht, $species);
+		}
+		if ($what eq 'pubmed'){
+			
+			$refspecies = $species;
+			@genes = Ask::pubmed('fertility and female and gene and mutation and human and cause', $fh,$fhht,$species,$opts{u});
+		}
+		if ($what eq 'omim'){
+		
+			@genes = Ask::omim('fertility and female', $fh,$fhht,$species);
+		}
+		if ($what eq 'list'){
+		
+			@genes = Ask::list('example.txt', $fh, $fhht, $species);
+			$refspecies = $species;
+		}
+		if ($what eq 'gene_id'){
+		
+			@genes = Ask::ensemblgeneid('ENSGALG00000012691',$species, $fh, $fhht);
+		}
+		if ($what eq 'network'){
+			@genes = Ask::gene_network_neighborhood('IGF2','1', $fh, $fhht,$species);
+		}
+		if ($what eq 'intersect'){
+			@genes = Ask::intersecting_networks('ESR2','GH1', '2', $fh, $fhht,$species);
+		}
+		if ($what eq 'express'){
+			$refspecies = $species;
+
+			@genes = Ask::expression($species,$fh, $fhht,$running_mode);
+		}
+		unless (@genes){
+			print "\n================\nyour query did not result in any genes being selected.\n";
+			print "PLEASE TRY AGAIN!\n================\n\n";
+
+			if ($running_mode eq 'silent'){
+				# give value nogene to @genes to allow breaking out of the loop, only if silent (job processing)
+				@genes = ('nogene');
+			}
+		}
+	
+	} until (@genes);
+	############################
+	# filtering options go here
+	############################
+
+	############################
+	# tissuefiltering
+	############################
+	my @filtergenes;
+	print "tissuefilter: $tissuefiltering\n";
+	if ($tissuefiltering =~ /=yes/){
+		@filtergenes = Ask::expression_filtering($species,$tissuefiltering,\@genes);
+		print "There are ". scalar(@filtergenes) ."filtergenes\n";
+		@genes = @filtergenes;
+		print scalar(@filtergenes)." genes that passed through expression filtering ($tissuefiltering)\n";
+		print $fh scalar(@filtergenes)." genes that passed through expression filtering ($tissuefiltering)\n";
+		print $fhht "<hr><h3> ".scalar(@filtergenes)." genes that passed through expression filtering ($tissuefiltering)</h3><br>\n";
+		Ask::print_species_ensembl_gene_id_info(\@genes,$species,$fh,$fhht);
+
+	}
+	############################
+	# filtering from GO overrepresentation
+	############################
+	if ($opts{f}>0 && $opts{f}<0.1){
+		my($filtergeneref,$gostatref) = R_BioC::gene_set_enrichment($species,$tempdir,$opts{f},$fh,$fhht,\@genes);
+		@filtergenes = @$filtergeneref;
+		@filtergenes = Expression::unique_array_elements(@filtergenes);
+		my @gostats = @$gostatref;
+		print "There are ". scalar(@filtergenes) ."filtergenes\n";
+		@genes = @filtergenes;
+		print scalar(@filtergenes)." genes that passed through expression filtering ($tissuefiltering)\n";
+		print $fh scalar(@filtergenes)." genes that passed through expression filtering ($tissuefiltering)\n";
+		print $fhht "<hr><h3> ".scalar(@filtergenes)." genes that passed through expression filtering ($tissuefiltering)</h3><br>\n";
+		Ask::print_species_ensembl_gene_id_info(\@genes,$species,$fh,$fhht);
+
+	}
+	
+	############################
+	# filtering from gene list
+	############################
+
+	@filtergenes = ();
+	my $listfilterflag =0;
+	if (@filterlist){
+		if(@genes){
+			#print "genes for filtering: @genes\n";
+			#print "genes in filterlist: @filtergenes";
+			#print "conditional: $genlistfilter_conditional\n";
+			unless ($genes[0] eq 'nogene'){
+				if ($genlistfilter_conditional eq 'AND'){
+					@filtergenes = Expression::shared_array_elements(\@genes,\@filterlist);
+					$listfilterflag = 1;
+				}
+				if ($genlistfilter_conditional eq 'OR'){
+					push(@genes,@filterlist);
+					@filtergenes = Expression::unique_array_elements(@genes);
+					$listfilterflag = 1;
+				}
+				if ($genlistfilter_conditional eq 'NOT'){
+					@filtergenes = Expression::unique_first_array_elements(\@genes,\@filterlist);
+					$listfilterflag = 1;
+				}
+			}
+		}
+	}
+	
+	if ($listfilterflag ==1){
+		
+		print "There are ". scalar(@filtergenes) . "filtergenes\n";
+		@genes = @filtergenes;
+		print scalar(@filtergenes)." genes that passed through the listfilter\n";
+		print $fh scalar(@filtergenes)." genes that passed through the listfilter\n";
+		print $fhht "<hr><h3> ".scalar(@filtergenes)." genes that passed through the listfilter</h3><br>\n";
+		Ask::print_species_ensembl_gene_id_info(\@genes,$species,$fh,$fhht);
+
+	}
+
+	#######################
+	# create job specific intermediate file and put genes there
+	#######################
+	open (OUTGENE, ">$tempdir/results/genes.txt");
+	print OUTGENE "$species\n$what\n";
+	foreach my $gen (@genes){
+		print OUTGENE "$gen\n";
+		
+	
+	}
+	close (OUTGENE);
+
+	
+	
+	if ($pwname eq 'apache'){
+		open(KVLLOG, ">>/var/tmp/kvllog.txt") or warn "Cannot open kvllogfile: $!"; 
+		print KVLLOG "PID: $$\tend time: ".scalar(localtime)."\tremote user: $remote_user\tlocal user: $pwname\tGenSearch: $what for $species\tNumber of Genes: ".scalar(@genes)."\ttempdir: $tempdir\n"; 
+		close(KVLLOG); 
+	}
+
+	print $fh "Run ends at " . scalar (localtime);
+	print $fhht "<hr>Run ends at " . scalar (localtime);
+	print $fhht "\n".'<hr></body></html>';
+	close ($fh);	
+	close ($fhht);	
+	unless ($running_mode eq 'silent'){
+		print "\nHit enter to continue: ";
+		<>;
+	}
+	print "\n\n";
+
+}
+############ end of part 1 ##########################################################
+
+####################### part 2: detect snps in genes ################################
+
+##############################
+#set refspecies to queryspecies in case querytype is region/qtl or stable gene id
+##############################
+
+unless ($modus eq 'searchgenes'){
+	
+	open (OUTGENE, "$tempdir/results/genes.txt") or die "cannot open file genes.txt, please perform a gene quiry first!!! $!";
+	my @genes = <OUTGENE>;
+	my $species = shift @genes;
+	my $what = shift @genes;
+	chomp $species;
+	chomp $what;
+
+	open (OUT, ">$tempdir/results/fullreport.txt");
+	open (OUTSNPS, ">$tempdir/results/snpreport.txt");
+	open (HTML, ">$tempdir/results/fullreport.html");
+	print HTML '<html><head><title>Full SNP report'.$species.$what.$tempdir.'</head><body><strong>Full SNP report '.$species.$what.$tempdir.'</strong><hr>';
+
+	my($pwname)=getpwuid($<);
+
+	print OUT "Run starts at " . scalar (localtime) ."\n\n";
+	print OUTSNPS "Run starts at " . scalar (localtime) ."\n\n";
+	print HTML "Run starts at " . scalar (localtime) ."<br>remote user: $remote_user local user: $pwname<hr>\n\n";
+	
+	#open(SENDMAIL, "|/usr/sbin/sendmail -t") or die "Cannot open sendmail: $!"; 
+	#print SENDMAIL 'Reply-to: hendrik-jan.megens@wur.nl'."\n"; 
+	#print SENDMAIL "Subject: $tempdir submitted by $remote_user\n"; 
+	#print SENDMAIL 'To: hjm@localhost'."\n"; 
+	#print SENDMAIL "Content-type: text/plain\n\n"; 
+	#print SENDMAIL "SNPSearch: $what for $species\nNumber of Genes: ".scalar(@genes)."\ntempdir: $tempdir\ntime: ".scalar(localtime)."\nremote user: $remote_user\nlocal user: $pwname\nPID: $$\n"; 
+	#close(SENDMAIL); 
+	
+	if ($pwname eq 'apache'){
+		open(KVLLOG, ">>/var/tmp/kvllog.txt") or warn "Cannot open kvllogfile: $!"; 
+		print KVLLOG "PID: $$\tstart time: ".scalar(localtime)."\tremote user: $remote_user\tlocal user: $pwname\tSNPSearch: $what for $species\tNumber of Genes: ".scalar(@genes)."\ttempdir: $tempdir\n"; 
+		close(KVLLOG); 
+	}
+
+	#mail: <br>process ID: $$ <br> user id: $< 
+	#print######################
+	print OUT "Query species: $species\n";
+	print HTML 'More information on how genes were selected for this report can be found in: <a href="gensearch.html">gensearch</a><br>';
+	print HTML "<strong>Query species:<em> $species</em></strong><br>";
+
+	print OUT "Query type: $what\n";
+	print HTML "<strong>Query type: <em>$what</em></strong><br>";
+	print OUT "The following genes are searched:\n";
+	print HTML "<strong>The following genes are searched:</strong><br>";
+	
+
+	foreach my $gen (@genes){
+		chomp $gen;
+		print OUT "$gen\n";
+		print HTML "$gen<br>";
+	
+	}
+	
+	print OUT "\n************************\n****SEARCH BEGINS*****\n************************\n\n";
+	print HTML "<hr>****SEARCH BEGINS*****<hr>";
+	######################print#
+	
+	#############################
+	#foreach of the genes do:
+	#############################
+	
+	foreach my $gen (@genes){
+		chomp $gen;
+		
+		##############################
+		#all the info is being acquired from subroutine my_info
+		##############################		
+
+		my_info($species, $gen,$tempdir);
+		
+		#print######################
+		print "\n==============================================\n\n";
+		print OUT "\n==============================================\n\n";
+		print OUTSNPS "\n==============================================\n\n";
+		print HTML '<hr>';
+		######################print#
+	}
+	print "Run ends at " . scalar (localtime)."\n\n";
+	print OUT "Run ends at " . scalar (localtime);
+	print HTML "Run ends at " . scalar (localtime).'</body></html>';
+	
+	if ($pwname eq 'apache'){
+		open(KVLLOG, ">>/var/tmp/kvllog.txt") or warn "Cannot open kvllogfile: $!"; 
+		print KVLLOG "PID: $$\tend time: ".scalar(localtime)."\tremote user: $remote_user\tlocal user: $pwname\tSNPSearch: $what for $species\tNumber of Genes: ".scalar(@genes)."\ttempdir: $tempdir\n"; 
+		close(KVLLOG); 
+	}
+
+	close (OUT);
+	close (OUTSNPS);
+
+
+}
+
+############# end of part 2 ##############################################
+##################
+#close filehandles
+##################
+
+close (STDERR);
+if ($running_mode eq 'silent'){
+	close (STDOUT);
+}
+
+#unlink glob 'temp/fastafile.fastagif/*.*';
+#rmdir '$tempdir/temp/fastafile.fastagif';
+#unlink glob 'temp/*.*';
+#rmdir "temp" or warn "cannot remove directory temp: $!\n";
+exit;
+
+#############################
+#sub my_info
+#############################
+
+sub my_info {
+	my ($species, $gen,$tempdir) = @_;
+	
+	#my $result = human_to_target_species ($species, $gen, $refspecies, $tempdir);
+	my $result = check_ensemblgeneid($gen,$species);
+	if ($result){
+		
+		############################
+		#get the description of the gene
+		############################
+		
+		get_description($species, $result);
+			
+		############################
+		#get external references 
+		############################
+			
+		get_external_references($species, $result);
+		
+		#############################
+		#get the position of the gene on the query genome
+		#############################
+		my ($chromosome, $start, $end, $strand) = Gene_Attributes::position($species, $result);
+			
+		#print######################
+		print "On chromosome: ".$chromosome." start : end of gene:\t".$start." : ".$end.", on strand $strand.\n";
+		print "\n-----------------\n";
+		print OUT "On chromosome: ".$chromosome." start : end of gene:\t".$start." : ".$end.", on strand $strand.\n";
+		print HTML "<strong>On chromosome: ".$chromosome." start : end of gene:\t".$start." : ".$end.", on strand $strand.</strong><br><br>";
+		print OUTSNPS "On chromosome: ".$chromosome." start : end of gene:\t".$start." : ".$end.", on strand $strand.\n";
+		print OUT "\n-----------------\n";
+		######################print#
+		
+		############################
+		#get expression data
+		############################
+		my @entrez_gene_id_array = Gene_Attributes::ensembl_id_to_entrez_gene_id($species,$result);
+		foreach my $entrez_gene_id (@entrez_gene_id_array){
+			my ($expr_profiles_ref,$hprd_tissue_ref) = Expression::expression_gene($species,$entrez_gene_id);
+			my @expression_profiles = @$expr_profiles_ref;
+			my @hprd_expression = @$hprd_tissue_ref;
+			if (@expression_profiles){
+				print "\n---------\nExpression profile (UniGene):\n";
+				print OUT "\n---------\nExpression profile (UniGene):\n";
+				print HTML "<hr><h3>Expression profile (UniGene):</h3><br>\n";
+				print HTML '<table border="1"><tr><th>Tissue</th><th>TPM</th></tr>';
+
+			}
+			else {
+				print "No Expression profile found.\n";
+				print OUT "No Expression profile found.\n";
+				print HTML "No Expression profile found.\n";
+			}
+			foreach my $tissue (@expression_profiles){
+				print "$tissue\n";
+				print OUT "$tissue\n";
+				my @inttissue = split ("\t",$tissue);
+				print HTML "<tr><td>$inttissue[0]</td><td>$inttissue[1]</td></tr>\n";
+				
+			}
+			print HTML "</table><br>";
+			if (@hprd_expression){
+				print "\n--------------\nExpression recorded in the following tissues (ref: HPRD):\n";
+				print OUT "\n--------------\nExpression recorded in the following tissues (ref: HPRD):\n";
+				print HTML "<h3>Expression recorded in the following tissues (ref: HPRD):</h3><br>\n";
+			}
+			foreach my $tissue (@hprd_expression){
+				print "$tissue\n";
+				print OUT "$tissue\n";
+				print HTML "$tissue<br>\n";
+			}
+		}
+		
+		#############################
+		#get transcript info
+		#############################
+		my @transcript = Gene_Attributes::transcript($species, $result);
+		my $transcripts = \@transcript;
+		
+		print "\n---------\nThe following regulatory elements are annotated in EnsEMBL\n";	
+		print HTML "<hr><h3>The following regulatory elements are annotated in EnsEMBL</h3>";	
+		reg_elements($species, $result,$chromosome);
+		
+		#print######################
+		print "\n-----------------\n";
+		print OUT "\n-----------------\n";
+		
+		print "Conserved motiflike regions upstream (5') from first exon (FootPrinter):\n\n";
+		print OUT "Conserved motiflike regions upstream (5') from first exon (FootPrinter):\n\n";
+		print HTML "<h3>Conserved motiflike regions 0-500bp upstream (5') from first exon (FootPrinter):</h3>";
+		######################print#
+
+		FootPrinter($species, $result, $chromosome, $tempdir);
+		
+		#print######################
+		print "\n-----------------\n";
+		print OUT "\n-----------------\n";
+
+		print "Putative TFBS upstream (5') from first exon (Clover):\n\n";
+		print OUT "Putative TFBS upstream (5') from first exon (Clover):\n\n";
+		print HTML "<h3>Putative TFBS upstream (5') from first exon (Clover):</h3>";
+		######################print#
+
+		Clover($species, $result, $chromosome, $tempdir);
+
+		transcripts($transcripts,$species, $chromosome, $tempdir);
+
+	}
+
+	#else {
+		#print######################
+	#	print"No $species ortholog found for $gen\n";
+	#	print OUT "No $species ortholog found for $gen\n";
+	#	print HTML "<strong>No $species ortholog found for $gen</strong><br>";
+		######################print#
+	#}
+}
+
+################################
+#sub transcripts
+################################
+
+sub transcripts {
+
+	my ($transcripts, $species, $chromosome, $tempdir) =@_;
+	my @transcript = @$transcripts;
+	
+	#print######################
+	print "The following transcripts have been described:\n";
+	print OUT "The following transcripts have been described:\n";
+	print HTML "<h3>The following transcripts have been described:</h3>";
+	######################print#
+
+	foreach my $trans (@transcript){
+		
+		#print######################
+		print $trans."\n";
+		print OUT $trans."\n";
+		print HTML "<XMP>$trans</XMP>";
+		######################print#
+	}
+	
+	
+	foreach my $trans (@transcript){
+		my @sub = split("\t",$trans);
+		my $transcript_id = $sub[0];
+		
+		#print######################
+		print "\n-----------------\n";
+		print OUT "\n-----------------\n";
+		print $transcript_id."\t".$species."\n";
+		print OUT $transcript_id."\t".$species."\n";
+		print HTML '<h2>'.$transcript_id."\t".$species."</h2>";
+		######################print#
+			
+		#print######################
+		print "The following (potentialy) functional variation has been annotated:\n";
+		print OUT "The following (potentialy) functional variation has been annotated:\n";
+		print HTML "<h3>The following (potentialy) functional variation has been annotated:</h3>";
+		######################print#
+		
+		my @coding_snps = Snps::get_variation_on_transcript($species, $transcript_id);
+		if (@coding_snps){
+			print HTML '<table border="1"><tr><th>dbSNP id</th><th>type</th><th>5 flanking</th><th>variation</th><th>3 flanking</th><th>chr.</th><th>start</th><th>end</th></tr>';
+
+
+			foreach my $snp (@coding_snps){
+				
+				my @snp_rs = split("\t",$snp);
+				my @snps = Snps::get_SNP_info($species,$snp_rs[0]);
+				
+				foreach my $snp_feature (@snps){
+					my @intsnpfeature = split("\t",$snp_feature);
+					#print######################
+					print $snp_feature."\n";
+					print OUT $snp_feature."\n";
+					print HTML "<tr><td>$intsnpfeature[0]</td><td>$intsnpfeature[1]</td><td>$intsnpfeature[2]</td><td>$intsnpfeature[3]</td><td>$intsnpfeature[4]</td><td>$intsnpfeature[5]</td><td>$intsnpfeature[6]</td><td>$intsnpfeature[7]</td></tr>";
+					print OUTSNPS $snp_feature."\n";
+					######################print#
+				
+				}
+			}
+			print HTML "</table>";
+		}
+		else {
+			print "no potentially functional variation annotated\n";
+			print OUT "no potentially functional variation annotated\n";
+			print HTML "no potentially functional variation annotated<br>";
+		}
+		
+		print######################
+		print "\n- - - - - - - - -\n";
+		print OUT "\n- - - - - - - - -\n";
+		print HTML "\n";
+		######################print#
+	
+		my @three_utr = Gene_Attributes::get_3utr($species, $transcript_id, $tempdir);
+		if (@three_utr) {
+			#print######################
+			print "A 3UTR with length $three_utr[3] has been annotated, start $three_utr[0] : end $three_utr[1] on strand $three_utr[2] (on $three_utr[4] exons!)\n";	
+			print OUT "A 3UTR with length $three_utr[3] has been annotated, start $three_utr[0] : end $three_utr[1] on strand $three_utr[2]\n";
+			print HTML "<h3>A 3UTR with length $three_utr[3] has been annotated, start $three_utr[0] : end $three_utr[1] on strand $three_utr[2]</h3>";
+			######################print#
+		}
+		else {
+			#print######################
+			print "No 3UTR annotated\n";
+			print OUT "No 3UTR annotated\n";
+			print HTML "<h3>No 3UTR annotated</h3>";
+			######################print#
+		}
+	
+		##############################
+		#get miRNA target info from miRbase
+		##############################
+		
+		#print######################
+		print "\n- - - - - - - - -\n";
+		print OUT "\n- - - - - - - - -\n";
+		print HTML "<h3>Potential miRNA sites: miRbase</h3>";
+		#####################print#
+		
+		my @mirnas = Mirna::fetch_mirna_target($species, $transcript_id);
+		if (@mirnas) {
+
+			mirbase_output(\@mirnas,$species,$transcript_id,$chromosome,$tempdir);
+			
+			
+		}
+		else {
+			#print######################
+			print "No miRNA targets in miRbase.\n";
+			print OUT "No miRNA targets in miRbase.\n";
+			print HTML "No miRNA targets in miRbase.<br>";
+			######################print#
+		}
+
+		##############################
+		#identify potential miRNA targets using miRanda
+		##############################
+		
+		#print######################
+		print "\n- - - - - - - - -\n";
+		print OUT "\n- - - - - - - - -\n";
+		print HTML "<h3>Potential miRNA sites: search 3'UTR with miRanda</h3>";
+		######################print#
+			
+		if (@three_utr) {
+
+			#print "miranda temporarily disabled!!\n";
+			
+			miranda_output($species,$transcript_id,$chromosome,$tempdir);
+			
+			
+		}
+		else {
+			#print######################
+			print "Without 3utr no search for potential miRNA targets!\n";
+			print OUT "Without 3utr no search for potential miRNA targets!\n";
+			print HTML "<strong>Without 3utr no search for potential miRNA targets!</strong><br>";
+			######################print#
+		}
+		
+		#print######################
+		print "\n-----------------\n";
+		print OUT "\n-----------------\n";
+		######################print#
+		
+	}
+}
+
+###################
+#sub reg_elements
+###################
+
+sub reg_elements {
+	my ($species,$result,$chromosome)=@_;
+	my @reg_elements = Gene_Attributes::regulatory_elements($species, $result);
+	if (@reg_elements) {
+		foreach my $reg_element (@reg_elements){
+				
+			my @subelements = split ("\t",$reg_element);
+			my $element_name = $subelements[0];
+			my $element_start = $subelements[1];
+			my $element_end = $subelements[2];
+			my $element_factor = $subelements[3];
+			
+			#print######################
+			print "$element_name\t$element_factor\t$element_start\t$element_end\t";
+			print OUT "$element_name\t$element_factor\t$element_start\t$element_end\t";
+			print HTML "<XMP>$element_name\t$element_factor\t$element_start\t$element_end\t";
+			######################print#
+			
+			my @variations = Snps::get_variation_on_slice($species,$chromosome,$element_start,$element_end);
+			if (@variations) {
+				foreach my $variation (@variations){
+					
+					#print######################
+					print "$variation\n";
+					print OUT "$variation\n";
+					print HTML "$variation</XMP>";
+					print OUTSNPS "$element_name\t$element_factor\t$element_start\t$element_end\t$variation\n";
+					######################print#
+				
+				
+				}	
+			}
+			else {
+					
+				#print######################
+				print "no variation\n";
+				print OUT "no variation\n";
+				print HTML "no variation</XMP>";
+				######################print#
+			}
+		}
+	}
+	else {
+		#print######################
+		print "\n--------\nNo regulatory elements annotated in EnsEMBL.\n";
+		print OUT "No regulatory elements annotated in EnsEMBL.\n";
+		print HTML "No regulatory elements annotated in EnsEMBL.<br>";
+		######################print#
+	}
+}
+
+#######################
+#sub get_description
+#######################
+
+sub get_description {
+	my ($species, $result) = @_;
+	print HTML "<h3>Description of the $species gene $result:</h3>";
+	my $description = Gene_Attributes::description($species, $result);
+	if ($description) {
+		#print######################
+		print "\nThe description of this gene:\n$description\n\n-----------------\n";
+		print OUT "\nThe description of this gene:\n$description\n\n-----------------\n";
+		#print BT "\nThe description of this gene:\n$description\n\n-----------------\n";
+		print OUTSNPS "\nThe description of this gene:\n$description\n\n-----------------\n";
+		print HTML "<em>The description of this gene:</em><XMP>$description</XMP>";
+		######################print#
+	}
+	else {
+		
+		#print######################
+		print "No description\n\n-----------------\n";
+		print OUT "No description\n\n-----------------\n";
+		print HTML "No description<br>";
+		######################print#
+		
+	}
+}
+
+############################
+#sub get external_references
+############################
+
+sub get_external_references {
+	my ($species, $result) = @_;
+	#print######################
+	print "The following external references and names have been found associated with $result:\n";
+	print OUT "The following external references and names have been found associated with $result:\n";
+	print HTML "<em>The following external references and names have been found associated with $result:</em><br>";
+	######################print#
+	
+	my @xrefs = Gene_Attributes::xref($species, $result);
+	if (@xrefs) {
+		foreach my $xref (@xrefs){
+			
+			#print######################
+			print $xref."\n";
+			print OUT $xref."\n";
+			print HTML '<XMP>'.$xref."</XMP>";
+			######################print#
+			
+		}
+		print "\n-----------------\n";
+		print OUT "\n-----------------\n";
+	}
+	else {
+		
+		#print######################
+		print "No external references found\n\n-----------------\n";
+		print OUT "No external references found\n\n-----------------\n";
+		print HTML "No external references found<br>";
+		######################print#
+	}
+}
+
+####################
+#sub miranda_output
+####################
+
+sub miranda_output {
+
+	my ($species, $transcript_id, $chromosome, $tempdir) = @_;
+	#print######################
+	print "miRanda has found the following potential targets in the 3utr:\n";
+	print OUT "miRanda has found the following potential targets in the 3utr:\n";
+	print HTML "<strong>miRanda has found the following potential targets in the 3utr:</strong><br>";
+	print HTML '<table border="1"><tr><th>miRNA</th><th>score</th><th>chr.</th><th>start</th><th>end</th><th>variation</th></tr>';
+
+	######################print#
+			
+	my @pot_mirnas = Mirna::miranda($species, $transcript_id, $tempdir);
+	unless (@pot_mirnas){
+				
+		#print######################
+		print "No potential sites found\n";
+		print OUT "No potential sites found\n";
+		print HTML "No potential sites found<br>";
+		######################print#
+				
+	}
+	foreach my $pot_mirna (@pot_mirnas){
+		
+		my @mirna_info = split("\t",$pot_mirna);
+		my $mirna = $mirna_info[0];
+		$mirna =~ s/>//g;
+		my $score = $mirna_info[1];
+		my $mirna_chr_start = $mirna_info[2];
+		my $mirna_chr_end = $mirna_info[3];
+				
+		#print######################
+		print "$mirna\t$score\t$mirna_chr_start\t$mirna_chr_end";
+		print OUT "$mirna\t$score\t$mirna_chr_start\t$mirna_chr_end";
+		print HTML "<tr><td>$mirna</td><td>$score</td><td>$chromosome</td><td>$mirna_chr_start</td><td>$mirna_chr_end</td><td>";
+		######################print#
+				
+	
+		my @variations = Snps::get_variation_on_slice($species,$chromosome,$mirna_chr_start,$mirna_chr_end);
+					
+		if (@variations) {
+			foreach my $variation (@variations){
+				
+				#print######################
+				print "\t$variation";
+				print OUT "\t$variation";
+				print HTML "<XMP>$variation</XMP></td></tr>";
+				print OUTSNPS "$mirna\t$score\t$mirna_chr_start\t$mirna_chr_end\t$variation\n";
+				######################print#
+						
+			}
+		}
+		else {
+			#print######################
+			print "\tno variation";
+			print OUT "\tno variation";
+			print HTML "\tno variation</td></tr>";
+			######################print#
+		}
+				
+		#print######################
+		print "\n";
+		print OUT "\n";
+		print HTML "\n";
+		######################print#
+	}
+	print HTML "</table>";
+
+}
+
+####################
+#sub mirbase_output
+####################
+
+sub mirbase_output {
+
+	my ($intmirna,$species,$transcript_id,$chromosome, $tempdir) = @_;
+	my @mirnas = @$intmirna;
+	#print######################
+	print "The following miRNA target sites are found in miRbase:\n";
+	print OUT "The following miRNA target sites are found in miRbase:\n";
+	print HTML "<strong>The following miRNA target sites are found in miRbase:</strong><br>";
+	print HTML '<table border="1"><tr><th>miRNA</th><th>chr.</th><th>start</th><th>end</th><th>variation</th></tr>';
+
+	######################print#
+			
+	foreach my $mirna (@mirnas){
+		my @intmirna = split("\t",$mirna);
+		if ($intmirna[0] =~ /bta-/){ ###remove!!!###
+		#print######################
+		print "In 46: $mirna\t";
+		print OUT "In 46: $mirna\t";
+		print HTML "<tr><td>$intmirna[0]</td";
+		#####################print#
+				
+		my ($mirna_id, $mirna_chr,$mirna_chr_start,$mirna_chr_end) = Mirna::compare_mirbase_with_new ($mirna, $species, $transcript_id, $tempdir);
+		#print######################
+		print "In 48: $chromosome: $mirna_chr_start - $mirna_chr_end";
+		print OUT "In 48: $chromosome: $mirna_chr_start - $mirna_chr_end";
+		print HTML "<td>$chromosome</td><td>$mirna_chr_start</td><td>$mirna_chr_end</td>";
+		######################print#
+				
+		
+		my @variations = Snps::get_variation_on_slice($species,$chromosome,$mirna_chr_start,$mirna_chr_end);
+					
+		if (@variations) {
+			foreach my $variation (@variations){
+						
+				#print######################
+				print "\t$variation";
+				print OUT "\t$variation";
+				print HTML "<td><XMP>$variation</XMP></td></tr>";
+				print OUTSNPS "$mirna\t$chromosome\t$mirna_chr_start\t$mirna_chr_end\t$variation\n";
+				######################print#
+			
+			}
+		}
+		else {
+			#print######################
+			print "\tno variation";
+			print OUT "\tno variation";
+			print HTML "<td>no variation</td></tr>";
+			######################print#
+		}
+
+		#print######################
+		print "\n";
+		print OUT "\n";
+		print HTML "\n";
+		######################print#
+	} #### remove!!! ####		
+	}
+	print HTML "</table>";
+}
+
+sub FootPrinter {
+	
+	my ($species, $gen, $chromosome, $tempdir) = @_;
+	
+	my @poselements = FootPrinterPerl::main($species, $gen, $tempdir);
+
+	unless (@poselements){
+		#print######################
+		print "No conserved motifs found\n";
+		print OUT "No conserved motifs found\n";
+		print HTML "No conserved motifs found<br>";
+		######################print#	
+	}
+	my $nummotif = 0;
+	if (@poselements){
+		print HTML '<table border="1"><tr><th>Cons. motif/region</th><th>chromosome</th><th>start</th><th>end</th><th>variation</th></tr>';
+	}
+
+	foreach my $poselement (@poselements){
+			
+		$nummotif++;
+
+		my @subelement = split ("\t",$poselement);
+		my $elementstart = $subelement[0];
+		my $elementend = $subelement[1];
+
+		#print######################
+		print "Cons. motif/region $nummotif: $chromosome: $elementstart - $elementend\t";
+		print OUT "Cons. motif/region $nummotif: $chromosome: $elementstart - $elementend\t";
+		print HTML "<tr><td>$nummotif</td><td>$chromosome</td><td>$elementstart</td><td>$elementend</td>";
+		######################print#
+			
+		
+		my @variations = Snps::get_variation_on_slice($species,$chromosome,$elementstart,$elementend);
+				
+		if (@variations) {
+			print HTML "<td><XMP>";
+
+			foreach my $variation (@variations){
+		
+				#print######################
+				print "\t$variation";
+				print OUT "\t$variation";
+				print HTML "\t$variation";
+				print OUTSNPS "ConsMotif: $nummotif\t$chromosome\t$elementstart\t$elementend\t$variation\n";
+				######################print#
+				
+			}
+			print HTML "</XMP></td></tr>\n";
+
+		}
+		else {
+			#print######################
+			print "\tno variation";
+			print OUT "\tno variation";
+			print HTML "<td>no variation</td></tr>\n";
+			######################print#
+		}
+			
+		#print######################
+		print "\n";
+		print OUT "\n";
+		######################print#
+	}
+	if (@poselements){
+		print HTML "</table>\n";
+	}
+
+}
+
+sub Clover {
+	
+	my ($species, $gen, $chromosome, $tempdir) = @_;
+	
+	my @poselements = CloverPerl::main($species, $gen,$tempdir);
+
+	unless (@poselements){
+		#print######################
+		print "No conserved motifs found\n";
+		print OUT "No conserved motifs found\n";
+		print HTML "No conserved motifs found<br>";
+		######################print#	
+	}
+	my $nummotif = 0;
+	if (@poselements){
+		print HTML '<table border="1"><tr><th>Transcription Factor</th><th>sequence</th><th>chrom.</th><th>start</th><th>end</th><th>variation</th></tr>';
+	}
+	foreach my $poselement (@poselements){
+			
+		$nummotif++;
+
+		my @subelement = split ("\t",$poselement);
+		my $tf = $subelement[0];
+		my $elementstart = $subelement[1];
+		my $elementend = $subelement[2];
+		my $tfbs_seq = $subelement[3];
+
+		#print######################
+		print "$tf\t$tfbs_seq:\t$chromosome: $elementstart - $elementend\t";
+		print OUT "$tf\t$tfbs_seq:\t$chromosome: $elementstart - $elementend\t";
+		print HTML "<tr><td>$tf</td><td>$tfbs_seq</td><td>$chromosome</td><td>$elementstart</td><td>$elementend</td><td>";
+		######################print#
+		my @variations = Snps::get_variation_on_slice($species,$chromosome,$elementstart,$elementend);
+					
+		if (@variations) {
+			print HTML "<XMP>";
+			foreach my $variation (@variations){
+			
+				#print######################
+				print "\t$variation";
+				print OUT "\t$variation";
+				print HTML "\t$variation";
+				print OUTSNPS "$tf\t$tfbs_seq:\t$chromosome\t$elementstart\t$elementend\t$variation\n";
+				######################print#
+					
+			}
+			print HTML "</XMP></td></tr>\n";
+		}
+		else {
+			#print######################
+			print "\tno variation";
+			print OUT "\tno variation";
+			print HTML "no variation</td></tr>\n";
+			######################print#
+		}	
+		
+		#print######################
+		print "\n";
+		print OUT "\n";
+		#print HTML "</XMP>";
+		######################print#
+	}
+	if (@poselements){
+		print HTML "</table>";
+	}
+
+}
+
+sub human_to_target_species {
+	my ($species, $gen, $refspecies, $tempdir) = @_;
+
+	#print######################
+	print "$species\t$gen\t$refspecies\n\n";
+	print OUT "$species\t$gen\t$refspecies\n\n";
+	print HTML "<strong><hr></strong><h1>$gen in $species</h1><h3>Comparison type</h3>";
+	print HTML "<XMP>$species\t$gen\t$refspecies</XMP>";
+	######################print#
+	
+	my $result="";
+	
+	if ($refspecies eq 'human'){
+		my ($ortholog, $hum_chrom, $hum_chrom_start, $hum_chrom_end, $description, $identity, $homology_type, $hugo) = Fetch_Ortholog::ortholog($species, $gen, $refspecies);
+		$result = $ortholog;
+
+		#print "what is the result: \ngen = $gen\northolog = $ortholog\n";
+		
+		#print######################
+		print OUTSNPS "Hugo symbol: $hugo\n";
+		######################print#
+		
+		if ($result) {
+			my ($entrez_gene_id) = Fetch_Ortholog::hugo_to_entrez_gene_id($gen);
+			
+			#print######################
+			print "The human gene $gen is located on human chromosome $hum_chrom from $hum_chrom_start to $hum_chrom_end.\nDescription:\n $description\n\n";  
+			print "The $species ortholog of human gene $gen is $result (EnsEMBL stable ID)\n";
+			print "Homology type $species - human: $homology_type\n";
+			print "Perc. identity, Perc. positions, Perc. cov.: $identity\n\n-----------------\n";
+			
+			
+			#print OUT "The human gene $gen is located on human chromosome $hum_chrom from $hum_chrom_start to $hum_chrom_end.\nDescription:\n $description\n\n";  
+			if ($entrez_gene_id){
+				print HTML '<a href="http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=search&term='.$entrez_gene_id.'"'."<h3> Information on $gen in the reference species ($refspecies)</h3></a>";
+			}
+			else {
+				print HTML "<h3> Infrn=pYrg9Dvd&snpsearch=yes&description=chicken_Gene%20Network%20Neighborhood_igf2_depth1ormation on $gen in the reference species ($refspecies)</h3>";
+			}
+			#print HTML "<strong>The human gene $gen is located on human chromosome $hum_chrom from $hum_chrom_start to $hum_chrom_end.</strong><br><em>Description:</em><br><XMP> $description</XMP>";  
+			print OUT "The $species ortholog of human gene $gen is $result (EnsEMBL stable ID)\n";
+			#print HTML "<h3>The $species ortholog of human gene $gen is $result (EnsEMBL stable ID)</h3>";
+			print OUT "Homology type $species - human: $homology_type\n";
+			print HTML "<em>Homology type $species - human:</em> <XMP>$homology_type</XMP>";
+			print OUT "Perc. identity, Perc. positions, Perc. cov.: $identity\n\n-----------------\n";
+			print HTML "<em>Perc. identity, Perc. positions, Perc. cov.:</em> <XMP>$identity</XMP>";
+			######################print#
+						
+		}
+		else {
+			#print######################
+			print "no $species ortholog found!\n\n-----------------\n";
+			print OUT "no $species ortholog found!\n\n-----------------\n";
+			print HTML "<strong>no $species ortholog found!</strong><br>";
+			######################print#
+		}
+
+	}
+	else {$result = $gen};
+	return $result;
+}
+
+sub check_ensemblgeneid {
+	my ($id, $species) = @_;
+	my $gen="";
+	
+	my $gene_adaptor = Bio::EnsEMBL::Registry->get_adaptor($species ,'core','Gene');
+	
+	$id = uc $id;
+	
+	if ($id){
+		unless ($gene_adaptor -> fetch_by_stable_id($id)){
+			print "$id is not a recognized gene id for $species\n";
+			print OUT "$id is not a recognized gene id for $species\n";
+			print HTML "<hr><strong>$id is not a recognized gene id for $species</strong>\n<br>";
+	
+		}	
+
+		if ($gene_adaptor -> fetch_by_stable_id($id)){
+	
+			print "$id is a valid stable id for $species.\n";
+			print OUT "$id is a valid stable id for $species.\n";
+			print HTML "<hr><strong>$id is a valid stable id for $species.</strong>\n<br>";
+	
+			$gen = $id;
+		}
+	}
+	return $gen;
+}
+

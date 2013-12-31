@@ -1,0 +1,106 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 2.3  (Linux)">
+	<META NAME="CREATED" CONTENT="20081210;10343900">
+	<META NAME="CHANGED" CONTENT="20081210;15571000">
+	<STYLE TYPE="text/css">
+	<!--
+		@page { size: 8.5in 11in; margin: 0.79in }
+		P { margin-bottom: 0.08in }
+		H3 { margin-bottom: 0.08in }
+		H3.western { font-family: "Liberation Sans", sans-serif }
+	-->
+	</STYLE>
+</HEAD>
+<BODY LANG="en-US" DIR="LTR">
+<H3 CLASS="western">Search Option: Genelist</H3>
+<P STYLE="margin-bottom: 0in">This is not actually a search option,
+you can only input gene name or EnsEMBL ids here, or a combination of
+the two. The file should be plain text, with one gene name or id per
+line and no additional information or whitespace. The text file can
+be uploaded from your computer by pressing 'browse' and selecting the
+file and then hitting 'submit'.</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">IGF1</P>
+<P STYLE="margin-bottom: 0in">ALB</P>
+<P STYLE="margin-bottom: 0in">ESR2</P>
+<P STYLE="margin-bottom: 0in">ENSGALG00000006865</P>
+<P STYLE="margin-bottom: 0in">ESR1</P>
+<P STYLE="margin-bottom: 0in">VIT2</P>
+<P STYLE="margin-bottom: 0in">ENSGALG00000012439</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">Note that EnsEMBL gene ids are species
+specific, which means that if you did not select 'chicken' in this
+example, no genes would be retrieved for those two ids.</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">	Databases with gene names that are
+well curated are available for a few species only (e.g. Human and
+mouse). Fansnip incorporates the gene database from NCBI, which in
+turn uses curated databases if available (e.g. Hugo for human gene
+names). For species without curated databases NCBI will assign gene
+names based on homologue predictions.</P>
+<P STYLE="margin-bottom: 0in">	Fansnip will only retrieve a gene name
+if it exists in the NCBI database. Alias databases have not been
+implemented as dealing with ambiguities often can only be done by
+user intervention. The rationale behind Fansnip is to minimize user
+intervention. There is one exception: if the gene name itself is not
+present for a non-human species, but it is the same as a human gene
+name, the orthologue of that gene will be retrieve on the premise
+that gene names will only be identical if there is some kind of
+homology relationship. This may not always be the case.</P>
+<P STYLE="margin-bottom: 0in">	As Fansnip uses primarily Ensembl gene
+id's no gene can be retrieved if there is not a proper cross database
+(NCBI-EnsEMBL) annotation. Unfortunately this is the case for a
+sizeable portion of the genes. You can circumvent this problem by
+using EnsEMBL ids in stead.</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<H3 CLASS="western">What to expect:</H3>
+<P STYLE="margin-bottom: 0in">Let's assume you have uploaded a file
+containing the gene names from the example.</P>
+<P STYLE="margin-bottom: 0in">It may take some time for results to
+appear. Then you will see:</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"><STRONG>chicken gene </STRONG><A HREF="http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&amp;cmd=search&amp;term=418090" TARGET="_blank"><STRONG><EM>IGF1</EM></STRONG><STRONG>
+</STRONG></A><STRONG>(insulin-like growth factor 1 (somatomedin C))
+has NCBI gene id </STRONG><STRONG><EM>418090 </EM></STRONG><STRONG>and
+EnsEMBL gene id </STRONG><STRONG><EM><A HREF="http://www.ensembl.org/Gallus_gallus/geneview?gene=ENSGALG00000012755" TARGET="_blank">ENSGALG00000012755</A></EM></STRONG><BR><STRONG>chicken
+gene </STRONG><A HREF="http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&amp;cmd=search&amp;term=396197" TARGET="_blank"><STRONG><EM>ALB</EM></STRONG><STRONG>
+</STRONG></A><STRONG>(albumin) has NCBI gene id </STRONG><STRONG><EM>396197
+</EM></STRONG><STRONG>and EnsEMBL gene id </STRONG><STRONG><EM><A HREF="http://www.ensembl.org/Gallus_gallus/geneview?gene=ENSGALG00000020180" TARGET="_blank">ENSGALG00000020180</A></EM></STRONG><BR><STRONG>chicken
+gene </STRONG><A HREF="http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&amp;cmd=search&amp;term=395575" TARGET="_blank"><STRONG><EM>ESR2</EM></STRONG><STRONG>
+</STRONG></A><STRONG>(estrogen receptor 2 (ER beta)) has NCBI gene id
+</STRONG><STRONG><EM>395575 </EM></STRONG><STRONG>and EnsEMBL gene id
+</STRONG><STRONG><EM><A HREF="http://www.ensembl.org/Gallus_gallus/geneview?gene=ENSGALG00000011801" TARGET="_blank">ENSGALG00000011801</A></EM></STRONG><BR><EM>The
+description of the chicken gene </EM><EM><STRONG><A HREF="http://www.ensembl.org/Gallus_gallus/geneview?gene=ENSGALG00000006865" TARGET="_blank">ENSGALG00000006865
+</A></STRONG></EM><EM>(EnsEMBL name: </EM><EM><STRONG>IDE</STRONG></EM><EM>):</EM><BR>Insulin-degrading
+enzyme (EC 3.4.24.56) (Insulysin) (Insulinase) (Insulin protease).
+[Source:Uniprot/SWISSPROT;Acc:P14735]<BR><STRONG>chicken gene </STRONG><A HREF="http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&amp;cmd=search&amp;term=396099" TARGET="_blank"><STRONG><EM>ESR1</EM></STRONG><STRONG>
+</STRONG></A><STRONG>(estrogen receptor 1) has NCBI gene id </STRONG><STRONG><EM>396099
+</EM></STRONG><STRONG>and EnsEMBL gene id </STRONG><STRONG><EM><A HREF="http://www.ensembl.org/Gallus_gallus/geneview?gene=ENSGALG00000012973" TARGET="_blank">ENSGALG00000012973</A></EM></STRONG><BR><BR>VIT2
+is not an official Hugo symbol!<BR><EM>The description of the chicken
+gene </EM><EM><STRONG><A HREF="http://www.ensembl.org/Gallus_gallus/geneview?gene=ENSGALG00000012439" TARGET="_blank">ENSGALG00000012439
+</A></STRONG></EM><EM>(EnsEMBL name: </EM><EM><STRONG>IGFBP3</STRONG></EM><EM>):</EM><BR>Insulin-like
+growth factor-binding protein 3 precursor (IGFBP-3) (IBP- 3)
+(IGF-binding protein 3). [Source:Uniprot/SWISSPROT;Acc:P17936]<BR><STRONG>There
+are 6 valid genes in /var/tmp/kvltemp/genelistNWp8PYXp.</STRONG></P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">Six out of seven were valid. You will
+also notice a button stating 'submit'. If you press this button, the
+gene(s) that were found can be process in the SNPsearch phase.
+Alternatively, you can make a selection of your genes and submit.</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">If you did not submit a valid name you
+will be notified about it and you can choose to start a new query by
+pressing 'new'.</P>
+</BODY>
+</HTML>

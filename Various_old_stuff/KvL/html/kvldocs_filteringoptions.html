@@ -1,0 +1,83 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 2.3  (Linux)">
+	<META NAME="CREATED" CONTENT="20081209;15503000">
+	<META NAME="CHANGED" CONTENT="20081210;10372800">
+	<STYLE TYPE="text/css">
+	<!--
+		@page { size: 8.5in 11in; margin: 0.79in }
+		P { margin-bottom: 0.08in }
+		H3 { margin-bottom: 0.08in }
+		H3.western { font-family: "Liberation Sans", sans-serif }
+	-->
+	</STYLE>
+</HEAD>
+<BODY LANG="en-US" DIR="LTR">
+<H3 CLASS="western">FanSnIP enables filtering of lists of genes, i.e.
+only the genes will pass that meet certain criteria.</H3>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">Three filtering options are available:</P>
+<OL>
+	<LI><P STYLE="margin-bottom: 0in">Expression</P>
+	<LI><P STYLE="margin-bottom: 0in">Gene Set Enrichment analysis</P>
+	<LI><P STYLE="margin-bottom: 0in">A set of genes supplied and
+	uploaded by the user</P>
+</OL>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<H3 CLASS="western">Expression</H3>
+<P STYLE="margin-bottom: 0in">After choosing 'expression' and hitting
+'submit', you will be asked to check one or more tissues. If multiple
+tissues are selected, you can choose how to combine these. The
+default is 'AND'. You will also be asked to submit the level of
+expression. The level of expression can be 10 transcripts per million
+(TPM) and up, 100 TPM and up, or 1000 an up.</P>
+<P STYLE="margin-bottom: 0in">The database used for the 'expression
+filtering option' is the same as for selecting genes from expression
+profiles. These expression profiles are derived from the <A HREF="http://www.ncbi.nlm.nih.gov/unigene">UniGene</A>
+EST profiles. Data used in Fansnip is mined from the UniGene
+databased an stored in a local database. That local database is
+update only twice a year, so your results may not be completely
+identical to the UniGene database.</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<H3 CLASS="western">Gene Set Enrichment analysis</H3>
+<P STYLE="margin-bottom: 0in">After choosing 'gene set enrichment –
+GO' you will be asked to check a p-value. This value is used as a
+threshold for the gene set enrichment (also called over
+representation) analysis. Gene set enrichment is based on the simple
+premise that if you draw genes randomly from the 'gene universe', you
+should get a random distribution of the GO terms associated with
+those genes. If you do not draw genes randomly from the 'gene
+universe', for instance because you are looking at co-expressed
+genes, you expect a non-random distribution of GO terms. In stead you
+expect that certain GO terms will appear more often than expected
+based on a random draw of genes, and hence these GO terms will be
+'over represented'. Overrepresentation is calculated based on
+comparing expected and observed values using a Fisher exact test. The
+test uses GO term associations based on a human annotation set
+implemented in the <A HREF="http://www.bioconductor.org/">BioConductor</A>
+package, because human is the species for which the best GO
+annotations are available. 
+</P>
+<P STYLE="margin-bottom: 0in">The rationale for Gene Set Enrichment
+as a filtering option is that you want to find a set of genes that
+have similar functions or act in the same biological pathways. A
+pubmed search, for instance, could yield many genes and some may lie
+in the same pathways. Genes in the same pathway may be better
+candidates, and knowing the pathways improves the choice of genes. 
+</P>
+<H3 CLASS="western">Gene List</H3>
+<P STYLE="margin-bottom: 0in">After choosing 'gene list', you will be
+asked to upload a text file with gene names. The gene names should be
+EnsEMBL ids, which you may have obtained from a previous search. This
+allows you to combine searches, for instance you may want to retrieve
+only those genes highly expressed in muscle that are also found on a
+certain region of chromosome 1. 
+</P>
+</BODY>
+</HTML>

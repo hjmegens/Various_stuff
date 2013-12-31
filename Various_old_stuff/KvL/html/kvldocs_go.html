@@ -1,0 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 2.3  (Linux)">
+	<META NAME="CREATED" CONTENT="20081210;10343900">
+	<META NAME="CHANGED" CONTENT="20081210;17105400">
+	<STYLE TYPE="text/css">
+	<!--
+		@page { size: 8.5in 11in; margin: 0.79in }
+		P { margin-bottom: 0.08in }
+		H3 { margin-bottom: 0.08in }
+		H3.western { font-family: "Liberation Sans", sans-serif }
+	-->
+	</STYLE>
+</HEAD>
+<BODY LANG="en-US" DIR="LTR">
+<H3 CLASS="western">Search Option: Gene Ontology (GO)</H3>
+<P STYLE="margin-bottom: 0in">This option allows you to retrieve all
+the genes associated with a GO term or GO id of choice. The input,
+i.e. term or id, need to be exact matches.  In case a term is
+submitted that has no exact matches an attempt is made to provide
+suggestions, but this feature is currently not very effective. 
+</P>
+<P STYLE="margin-bottom: 0in">	When a valid term (or id) is provided,
+all the genes that are associated <B>with it or its child terms</B>
+are retrieved. A list of child terms will be provided, as will be a
+list of parent terms for reference. All parent-child relationships
+are retrieved from a local database that is based directly on the 
+<A HREF="http://www.geneontology.org/">Gene Ontology database</A>.
+Associations are based solely on human since this species has the
+best GO annotation, and species specific genes are subsequently
+obtained by orthologous relationships (EnsEMBL compara). GO
+annotations are from a local databased but were mined from NCBI, that
+in turn retrieves this information from the <A HREF="http://www.geneontology.org/">Gene
+Ontology database</A>. Local databases are updated twice a year.</P>
+<H3 CLASS="western">What to expect:</H3>
+<P STYLE="margin-bottom: 0in">Let's assume you have entered a valid
+GO term or id.</P>
+<P STYLE="margin-bottom: 0in">It may take some time for results to
+appear. Then you will see:</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in"><STRONG>GO term 'GO:0040007 - growth'
+is parent of the following terms:</STRONG></P>
+<PRE STYLE="margin-bottom: 0.2in"><EM>Dist. GO acc  GO name</EM>
+0 GO:0040007 growth
+1 GO:0016049 cell growth
+1 GO:0035264 multicellular organism growth</PRE><P STYLE="margin-bottom: 0in">
+etc</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0.2in"><STRONG>GO term 'GO:0040007 - growth'
+is descendant of the following terms:</STRONG></P>
+<PRE STYLE="margin-bottom: 0.2in"><EM>Dist. GO acc  GO name</EM>
+0 GO:0040007 growth
+1 GO:0008150 biological_process
+2 all all</PRE><P STYLE="margin-bottom: 0in">
+Dist. refers to the distance between parent and child terms in the
+ontology tree.</P>
+<P STYLE="margin-bottom: 0in">Subsequently, a list of human gene
+names will be displayed, and finally, for each of the gene names, a
+description will be given and the species specific gene by finding
+the ortholog, e.g.:</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"><STRONG>HGNC symbol </STRONG><STRONG><EM><A HREF="http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&amp;cmd=search&amp;term=658" TARGET="_blank">BMPR1B
+</A></EM></STRONG><STRONG>has approved name bone morphogenetic
+protein receptor, type IB</STRONG> - chicken ortholog (1-1) is
+<EM><A HREF="http://www.ensembl.org/Gallus_gallus/geneview?gene=ENSGALG00000012216" TARGET="_blank">ENSGALG00000012216</A></EM></P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">If the search is complete, you will
+notice a button at the bottom of the page stating 'submit'. If you
+press this button, the gene(s) that were found can be process in the
+SNPsearch phase. Alternatively, you can make a selection of your
+genes and submit.</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">If you did not submit a valid term or
+id you will be notified about it and you can choose to start a new
+query by pressing 'new'.</P>
+</BODY>
+</HTML>
