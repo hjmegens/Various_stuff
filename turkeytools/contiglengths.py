@@ -15,5 +15,5 @@ minlength=args.minimumlength[0]
 fh = open(filename)
 for record in SeqIO.parse(fh, "fasta"):
     if len(record.seq)>minlength:
-       SeqIO.write(record,sys.stdout,'fasta')
-       #print(record.id,len(record.seq),record.seq.count('N'))
+       #SeqIO.write(record,sys.stdout,'fasta')
+       print(record.id,len(record.seq),record.seq.count('N'),seguid(record.seq))
