@@ -1,14 +1,14 @@
 import sys
 import random
 import time
-import matplotlib.pyplot as pyplot
-import numpy as np
-aantalsommen=int(sys.argv[1])
+#import matplotlib.pyplot as pyplot
+#import numpy as np
+aantalsommen=int(sys.argv[1]) # one additional argument can be passed for number of 'sommen'
 teller = 1
 resultaten = []
 starttot = time.time()
 aantalgoed=0
-sys.stderr.write("\x1b[2J\x1b[H")
+sys.stderr.write("\x1b[2J\x1b[H") # clear the screen
 while teller < aantalsommen+1:
    print('\n')
    sys.stderr.flush()
